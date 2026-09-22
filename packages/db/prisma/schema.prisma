@@ -3,9 +3,11 @@ generator client {
   output = "../generated/prisma"
 }
 
+
 datasource db {
   provider = "postgresql"
 }
+
 
 model User {
   id                 Int                 @id @default(autoincrement())
@@ -68,6 +70,7 @@ model ModelProviderMapping {
   provider        Provider       @relation(fields: [providerId], references: [id])
   conversations   Conversation[]
 }
+
 
 model OnrampTransaction {
   id     Int    @id @default(autoincrement())
