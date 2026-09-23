@@ -1,13 +1,10 @@
 generator client {
-  provider = "prisma-client"
-  output = "../generated/prisma"
+  provider = "prisma-client-js"
 }
-
 
 datasource db {
   provider = "postgresql"
 }
-
 
 model User {
   id                 Int                 @id @default(autoincrement())
@@ -19,28 +16,25 @@ model User {
   conversations      Conversation[]
 }
 
-
 model ApiKey {
-  id            Int            @id @default(autoincrement())
-  userId        Int
-  name          String
-  apiKey        String         @unique
-  disabled      Boolean        @default(false)
-  deleted       Boolean        @default(false)
-  lastUsed      DateTime?
-  creditsConsumed  Int         @default(0)
-  user          User           @relation(fields: [userId], references: [id])
-  conversations Conversation[]
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  name            String
+  apiKey          String         @unique
+  disabled        Boolean        @default(false)
+  deleted         Boolean        @default(false)
+  lastUsed        DateTime?
+  creditsConsumed Int            @default(0)
+  user            User           @relation(fields: [userId], references: [id])
+  conversations   Conversation[]
 }
-
 
 model Company {
-  id             int           @id @default(autoincrement())
-  name           String
-  model          Model[]
-  website        String
+  id      Int     @id @default(autoincrement())
+  name    String
+  model   Model[]
+  website String
 }
-
 
 model Model {
   id                    Int                    @id @default(autoincrement())
@@ -51,14 +45,12 @@ model Model {
   modelProviderMappings ModelProviderMapping[]
 }
 
-
 model Provider {
   id                    Int                    @id @default(autoincrement())
   name                  String
   website               String
   modelProviderMappings ModelProviderMapping[]
 }
-
 
 model ModelProviderMapping {
   id              Int            @id @default(autoincrement())
@@ -71,7 +63,6 @@ model ModelProviderMapping {
   conversations   Conversation[]
 }
 
-
 model OnrampTransaction {
   id     Int    @id @default(autoincrement())
   userId Int
@@ -79,7 +70,6 @@ model OnrampTransaction {
   status String
   user   User   @relation(fields: [userId], references: [id])
 }
-
 
 model Conversation {
   id                     Int                  @id @default(autoincrement())
