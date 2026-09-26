@@ -2,7 +2,7 @@ import bearer from "@elysiajs/bearer";
 import { Elysia } from "elysia";
 import { t } from "elysia";
 
-const app = new Elysia()
+export const app = new Elysia()
 .use(bearer())
   .post(
     "/api/v1/chat/completions",
@@ -29,9 +29,14 @@ const app = new Elysia()
         ),
       }),
     },
-  )
-  .listen(4000);
+  );
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+if (import.meta.main) {
+  app.listen(+(process.env.PORT || 4000));
+
+  console.log(
+    `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
+  );
+}
+
+export default app;``
