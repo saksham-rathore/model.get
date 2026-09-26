@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { app as apiBackendApp } from "api-backend";
 import { app as authApp } from "./modules/auth";
 import { app as apiKeysApp } from "./modules/apikeys";
 import { app as modelsApp } from "./modules/models";

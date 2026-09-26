@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.2.0",
+    "api-backend": "workspace:*",
     "db": "workspace:*",
     "elysia": "^1.2.0"
   },
