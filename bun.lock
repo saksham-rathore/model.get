@@ -12,11 +12,12 @@
     },
     "apps/api-backend": {
       "name": "api-backend",
-      "devDependencies": {
-        "@types/bun": "latest",
+      "version": "1.0.50",
+      "dependencies": {
+        "elysia": "latest",
       },
-      "peerDependencies": {
-        "typescript": "^7",
+      "devDependencies": {
+        "bun-types": "latest",
       },
     },
     "apps/dashboard-frontend": {
@@ -30,6 +31,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "lucide-react": "^1",
+        "primary-backend": "*",
         "react": "^19",
         "react-dom": "^19",
         "tailwind-merge": "^3.3.1",
@@ -49,6 +51,7 @@
       "name": "primary-backend",
       "dependencies": {
         "@elysiajs/jwt": "^1.2.0",
+        "db": "workspace:*",
         "elysia": "^1.2.0",
       },
       "devDependencies": {
