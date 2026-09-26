@@ -3,8 +3,13 @@
   "module": "src/index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
+  },
   "dependencies": {
     "@elysiajs/jwt": "^1.2.0",
+    "db": "workspace:*",
     "elysia": "^1.2.0"
   },
   "devDependencies": {
