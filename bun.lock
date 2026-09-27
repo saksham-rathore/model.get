@@ -15,7 +15,7 @@
       "version": "1.0.50",
       "dependencies": {
         "@elysiajs/bearer": "^1.4.4",
-        "elysia": "latest",
+        "elysia": "^1.2.0",
       },
       "devDependencies": {
         "bun-types": "latest",

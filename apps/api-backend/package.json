@@ -1,15 +1,20 @@
 {
   "name": "api-backend",
   "version": "1.0.50",
+  "type": "module",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/bearer": "^1.4.4",
+    "elysia": "^1.2.0"
   },
   "devDependencies": {
     "bun-types": "latest"
-  },
-  "module": "src/index.js"
+  }
 }

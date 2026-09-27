@@ -8,7 +8,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch src/index.ts",
+    "dev": "cd ../.. && bun --watch apps/primary-backend/src/index.ts",
     "start": "bun src/index.ts"
   },
   "dependencies": {

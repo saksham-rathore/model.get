@@ -16,6 +16,7 @@ const app = new Elysia()
   .use(apiKeysApp)
   .use(modelsApp)
   .use(paymentsApp)
+  .use(apiBackendApp)
   .listen(port);
 
 console.log(
