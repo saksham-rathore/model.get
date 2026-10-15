@@ -117,11 +117,7 @@ export const app = new Elysia()
       body: Conversation,
     },
   )
-  .listen(4000);
 
-// Only listen when run directly (`bun src/index.ts`).
-// When mounted into primary-backend, importing this file must NOT
-// start a second server.
 if (import.meta.main) {
   app.listen(+(process.env.PORT || 4000));
 

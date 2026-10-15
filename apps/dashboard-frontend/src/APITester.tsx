@@ -1,11 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useRef, type FormEvent } from "react";
+import React, { useRef, type FormEvent } from "react";
 
-export function APITester() {
+export function APITester(): React.JSX.Element {
   const responseInputRef = useRef<HTMLTextAreaElement>(null);
 
   const testEndpoint = async (e: FormEvent<HTMLFormElement>) => {
@@ -27,37 +22,47 @@ export function APITester() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-4 rounded-xl border border-white/10 bg-surface">
       <form onSubmit={testEndpoint} className="flex items-center gap-2">
-        <Label htmlFor="method" className="sr-only">
+        <label htmlFor="method" className="sr-only">
           Method
-        </Label>
-        <Select name="method" defaultValue="GET">
-          <SelectTrigger className="w-[100px]" id="method">
-            <SelectValue placeholder="Method" />
-          </SelectTrigger>
-          <SelectContent align="start">
-            <SelectItem value="GET">GET</SelectItem>
-            <SelectItem value="PUT">PUT</SelectItem>
-          </SelectContent>
-        </Select>
-        <Label htmlFor="endpoint" className="sr-only">
+        </label>
+        <select
+          id="method"
+          name="method"
+          defaultValue="GET"
+          className="h-10 rounded-lg border border-white/15 bg-raised px-3 text-sm text-white focus:outline-none"
+        >
+          <option value="GET">GET</option>
+          <option value="PUT">PUT</option>
+        </select>
+        <label htmlFor="endpoint" className="sr-only">
           Endpoint
-        </Label>
-        <Input id="endpoint" type="text" name="endpoint" defaultValue="/api/hello" placeholder="/api/hello" />
-        <Button type="submit" variant="secondary">
+        </label>
+        <input
+          id="endpoint"
+          type="text"
+          name="endpoint"
+          defaultValue="/api/hello"
+          placeholder="/api/hello"
+          className="h-10 flex-1 rounded-lg border border-white/15 bg-white/[0.04] px-3 text-sm text-white focus:outline-none"
+        />
+        <button
+          type="submit"
+          className="h-10 rounded-lg bg-white px-4 text-sm font-semibold text-black hover:bg-zinc-200 transition-colors"
+        >
           Send
-        </Button>
+        </button>
       </form>
-      <Label htmlFor="response" className="sr-only">
+      <label htmlFor="response" className="sr-only">
         Response
-      </Label>
-      <Textarea
+      </label>
+      <textarea
         ref={responseInputRef}
         id="response"
         readOnly
         placeholder="Response will appear here..."
-        className="min-h-[140px] font-mono resize-y"
+        className="min-h-[140px] rounded-lg border border-white/15 bg-black/50 p-3 font-mono text-xs text-zinc-300 resize-y"
       />
     </div>
   );

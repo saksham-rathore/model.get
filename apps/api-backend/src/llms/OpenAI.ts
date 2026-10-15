@@ -3,7 +3,7 @@ import { BaseLlm, LlmResponse } from "./Base";
 import OpenAI from "openai";
 
 const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: process.env.OPENAI_API_KEY,
 });
 
 export class OpenAi extends BaseLlm {
@@ -15,7 +15,7 @@ export class OpenAi extends BaseLlm {
                 content: message.content
             }))
         });
-
+        
         return {
             inputTokensConsumed: response.usage?.input_tokens!,
             outputTokensConsumed: response.usage?.output_tokens!,
