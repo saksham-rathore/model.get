@@ -14,7 +14,7 @@ export function Footer({ className = "" }: FooterProps): React.JSX.Element {
             <a
               href="#top"
               aria-label="model.get home"
-              className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
             >
               <svg width="28" height="28" viewBox="0 0 30 30" aria-hidden="true">
                 <rect width="30" height="30" rx="9" fill="#fff" />

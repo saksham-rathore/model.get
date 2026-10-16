@@ -1,5 +1,6 @@
-import { Message } from "../types";
-import { BaseLlm, LlmResponse } from "./Base";
+import type { Message } from "../types";
+import { BaseLlm } from "./Base";
+import type { LlmResponse } from "./Base";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({
@@ -7,7 +8,7 @@ const ai = new GoogleGenAI({
 });
 
 export class Gemini extends BaseLlm {
-  static async chat(model: string, messages: Message): Promise<LlmResponse> {
+  static override async chat(model: string, messages: Message): Promise<LlmResponse> {
     const response = await ai.models.generateContent({
       model: model,
       contents: messages.map((message) => ({

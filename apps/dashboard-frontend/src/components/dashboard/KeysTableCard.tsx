@@ -1,9 +1,17 @@
-import React from "react";
-import { useDashboard, formatMoney } from "./DashboardContext";
-import { ProgressBar } from "./StatCard";
+// Full keys table: revoke/enable (PUT /api-keys) and delete (DELETE /api-keys/:id).
+import { useDashboard } from "./DashboardContext";
+
+function lastUsedLabel(lastUsed: string | null): string {
+  if (!lastUsed) return "Never";
+  return new Date(lastUsed).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+}
 
 export function KeysTableCard(): React.JSX.Element {
-  const { keys, revokeKey, deleteKey } = useDashboard();
+  const { keys, setKeyOn, removeKey } = useDashboard();
 
   return (
     <section className="mt-4 rounded-2xl border border-white/10 bg-surface p-5 sm:p-6 shadow-sm">
@@ -23,10 +31,10 @@ export function KeysTableCard(): React.JSX.Element {
                   Key
                 </th>
                 <th className="pb-3 pr-4 text-left text-xs font-medium text-zinc-400">
-                  Created
+                  Last used
                 </th>
                 <th className="pb-3 pr-4 text-left text-xs font-medium text-zinc-400">
-                  Usage
+                  Spent
                 </th>
                 <th className="pb-3 pr-4 text-left text-xs font-medium text-zinc-400">
                   Status
@@ -36,7 +44,7 @@ export function KeysTableCard(): React.JSX.Element {
             </thead>
             <tbody>
               {keys.map((k) => {
-                const percent = k.limit ? (k.used / k.limit) * 100 : 0;
+                const on = !k.disabled;
                 return (
                   <tr
                     key={k.id}
@@ -46,57 +54,40 @@ export function KeysTableCard(): React.JSX.Element {
                       {k.name}
                     </td>
                     <td className="pr-4 font-mono text-[13px] text-zinc-400">
-                      mg-sk-••••{k.tail}
+                      …{k.apiKey.slice(-4)}
                     </td>
-                    <td className="pr-4 text-zinc-400">{k.created}</td>
-                    <td className="w-52 pr-4">
-                      <div>
-                        <span className="tabular-nums text-white font-medium">
-                          {formatMoney(k.used)}
-                        </span>
-                        <span className="text-zinc-400">
-                          {" "}
-                          / {k.limit ? formatMoney(k.limit) : "No limit"}
-                        </span>
-                      </div>
-                      {k.limit && (
-                        <div className="mt-1.5">
-                          <ProgressBar
-                            percent={percent}
-                            color={percent > 90 ? "bg-amber-400" : "bg-brand"}
-                          />
-                        </div>
-                      )}
+                    <td className="pr-4 text-zinc-400">
+                      {lastUsedLabel(k.lastUsed)}
+                    </td>
+                    <td className="pr-4 tabular-nums text-white font-medium">
+                      {k.credisConsumed.toLocaleString()}
                     </td>
                     <td className="pr-4">
                       <span
                         className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${
-                          k.on
+                          on
                             ? "bg-emerald-400/10 text-emerald-300"
                             : "bg-white/10 text-zinc-400"
                         }`}
                       >
-                        {k.on ? "Active" : "Revoked"}
+                        {on ? "Active" : "Revoked"}
                       </span>
                     </td>
                     <td className="text-right">
-                      {k.on ? (
-                        <button
-                          type="button"
-                          onClick={() => revokeKey(k.id)}
-                          className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-400/10 transition-colors cursor-pointer"
-                        >
-                          Revoke
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => deleteKey(k.id)}
-                          className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-300 hover:bg-red-400/10 transition-colors cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => void setKeyOn(k.id, !on)}
+                        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-400/10 transition-colors cursor-pointer"
+                      >
+                        {on ? "Revoke" : "Enable"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void removeKey(k.id)}
+                        className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-300 hover:bg-red-400/10 transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 );

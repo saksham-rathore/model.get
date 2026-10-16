@@ -1,159 +1,93 @@
-# Turborepo starter
+# model.get — one API key for every AI model
 
-This Turborepo starter is maintained by the Turborepo core team.
+Sign up, create an API key, top up demo credits, and call any model through
+one OpenAI-style endpoint. Includes a dashboard and a chat Playground.
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Run it
 
 ```sh
-cd my-turborepo
-turbo build
+bun install
+
+# terminal 1 — backend (primary + chat API) on http://localhost:4000
+bun --watch apps/primary-backend/src/index.ts
+
+# terminal 2 — dashboard on http://localhost:3000
+bun --hot apps/dashboard-frontend/src/index.ts
 ```
 
-Without global `turbo`, use your package manager:
+Needs Postgres (`DATABASE_URL`) and `JWT_SECRET` — see `.env`.
+Model calls also need provider keys (`OPENAI_API_KEY`, `GOOGLE_API_KEY`,
+`ANTHROPIC_API_KEY`).
+
+## How it fits together
+
+```
+dashboard-frontend (React)
+        |  cookie session (httpOnly `auth` cookie)
+        v
+primary-backend :4000 ── mounts ──> api-backend (/api/v1/...)
+   |  /auth       sign-up, sign-in, sign-out, profile
+   |  /api-keys   create, list, enable/disable, delete
+   |  /models     models, providers, per-model pricing
+   |  /payments   demo top-up (+1,000 credits)
+   |
+   +-- api-backend: POST /api/v1/chat/completions
+        Auth = YOUR api-key as `Authorization: Bearer <key>`
+```
+
+## How login works (no localStorage anywhere)
+
+1. `POST /auth/sign-up` or `/auth/sign-in` checks credentials and stores a
+   signed JWT in the httpOnly `auth` cookie. Sign-up logs you in immediately.
+2. The frontend sends `credentials: "include"` on every call and asks
+   `GET /auth/profile` ("who am I?") — that response is the only login state.
+3. Private backend routes call `readUserId()` (`primary-backend/src/lib/auth-cookie.ts`)
+   to turn the cookie back into a user id. No cookie / bad token → `401`.
+4. `POST /auth/sign-out` clears the cookie.
+
+## API cheat sheet
+
+| Call | Auth | What you get |
+| ---- | ---- | ------------ |
+| `POST /auth/sign-up {email, password}` | — | `{id, email}` + logged in |
+| `POST /auth/sign-in {email, password}` | — | `{message, email}` + logged in |
+| `POST /auth/sign-out` | cookie | `{message}` |
+| `GET /auth/profile` | cookie | `{email, credits}` |
+| `POST /api-keys {name}` | cookie | `{id, apiKey}` (shown once) |
+| `GET /api-keys` | cookie | `{apiKeys: [...]}` |
+| `PUT /api-keys {id, disabled}` | cookie | `{message}` |
+| `DELETE /api-keys/:id` | cookie | `{message}` |
+| `GET /models` | — | `{models: [{id, name, slug, company}]}` |
+| `GET /models/providers` | — | `{providers: [...]}` |
+| `GET /models/:id/providers` | — | token costs per provider |
+| `POST /payments/onramp` | cookie | `{message, credits}` (+1,000 demo) |
+| `POST /api/v1/chat/completions {model, messages}` | Bearer api-key | LLM reply, spends credits |
+
+Try it with curl (slug looks like `openai/gpt-4o-mini` — see `GET /models`):
 
 ```sh
-cd my-turborepo
-npx turbo build
-bun exec turbo build
-bun exec turbo build
+curl -X POST http://localhost:4000/api/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your-api-key>" \
+  -d '{"model": "openai/gpt-4o-mini", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Frontend map (start here)
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- `apps/dashboard-frontend/src/lib/api.ts` — every backend call, one file.
+- `apps/dashboard-frontend/src/auth.tsx` — login state (`useAuth()`).
+- `apps/dashboard-frontend/src/App.tsx` — tiny hash router + auth gate.
+- `.../components/dashboard/DashboardContext.tsx` — dashboard data (keys,
+  models, providers, balance) straight from the API.
+- `apps/dashboard-frontend/src/pages/` — `Landing, Signin, Signup,
+  Dashboard, ApiKeys, Credits, Playground`.
 
-```sh
-turbo build --filter=docs
-```
+## Backend map
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- `apps/primary-backend/src/index.ts` — composes the modules below.
+- `apps/primary-backend/src/lib/auth-cookie.ts` — the cookie ⇄ user-id logic.
+- `apps/primary-backend/src/modules/{auth,apikeys,models,payments}/` — one
+  folder per resource: `index.ts` (routes) + `service.ts` (Prisma) + `models.ts` (schemas).
+- `apps/api-backend/src/` — chat route plus one adapter per provider in `llms/`.
+- `packages/db/prisma/schema.prisma` — `User, ApiKey, Model, Provider,
+  ModelProviderMapping, OnrampTransaction, Conversation`.

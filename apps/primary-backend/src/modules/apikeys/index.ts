@@ -2,6 +2,7 @@ import jwt from "@elysiajs/jwt";
 import Elysia, { t } from "elysia";
 import { ApiKeyModel } from "./models";
 import { ApiKeyService } from "./service";
+import { readUserId } from "../../lib/auth-cookie";
 
 export const app = new Elysia({ prefix: "api-keys" })
   .use(
@@ -10,20 +11,11 @@ export const app = new Elysia({ prefix: "api-keys" })
       secret: process.env.JWT_SECRET!,
     }),
   )
+  // Private router: every route below needs the login cookie.
   .resolve(async ({ cookie: { auth }, status, jwt }) => {
-    if (!auth) {
-      return status(401);
-    }
-
-    const decoded = await jwt.verify(auth.value as string);
-
-    if (!decoded || !decoded.userId) {
-      return status(401);
-    }
-
-    return {
-      userId: decoded.userId as string,
-    };
+    const userId = await readUserId(auth, jwt);
+    if (!userId) return status(401);
+    return { userId };
   })
   .post(
     "/",

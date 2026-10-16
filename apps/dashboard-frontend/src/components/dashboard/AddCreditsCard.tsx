@@ -1,23 +1,19 @@
-import React, { useState } from "react";
+// Demo top-up: POST /payments/onramp adds a fixed 1,000 credits.
+// No card, no checkout — just enough to try the Playground.
+import { useState } from "react";
 import { useDashboard } from "./DashboardContext";
 
-const PRESETS = [10, 25, 50, 100];
-
 export function AddCreditsCard(): React.JSX.Element {
-  const { selectedAmount, setSelectedAmount, addCredits } = useDashboard();
-  const [customAmount, setCustomAmount] = useState<string>(
-    String(selectedAmount),
-  );
+  const { balance, topUp } = useDashboard();
+  const [busy, setBusy] = useState(false);
 
-  const handlePreset = (v: number) => {
-    setSelectedAmount(v);
-    setCustomAmount(String(v));
-  };
-
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    const val = Math.round(Number(customAmount));
-    addCredits(val);
+  const onTopUp = async () => {
+    setBusy(true);
+    try {
+      await topUp();
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -29,58 +25,19 @@ export function AddCreditsCard(): React.JSX.Element {
         Credits never expire. Demo only: no payment is taken.
       </p>
 
-      <div
-        className="mb-4 grid grid-cols-4 gap-2"
-        role="group"
-        aria-label="Amount"
+      <p className="font-display text-[2rem] font-bold leading-none tracking-tight text-white tabular-nums">
+        {balance.toLocaleString()}
+      </p>
+      <p className="mt-2 text-sm text-zinc-400">credits available</p>
+
+      <button
+        type="button"
+        onClick={() => void onTopUp()}
+        disabled={busy}
+        className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white px-4 text-sm font-semibold text-black transition-colors hover:bg-zinc-200 disabled:opacity-50 cursor-pointer"
       >
-        {PRESETS.map((v) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => handlePreset(v)}
-            aria-pressed={v === selectedAmount}
-            className={`h-11 rounded-xl border text-sm font-semibold transition-colors cursor-pointer ${
-              v === selectedAmount
-                ? "border-white bg-white text-black"
-                : "border-white/15 text-zinc-300 hover:border-white/40"
-            }`}
-          >
-            ${v}
-          </button>
-        ))}
-      </div>
-
-      <form onSubmit={handleAdd}>
-        <label
-          htmlFor="amt"
-          className="mb-1.5 block text-sm font-medium text-zinc-200"
-        >
-          Amount (USD)
-        </label>
-        <input
-          id="amt"
-          type="number"
-          min={5}
-          max={10000}
-          step={1}
-          inputMode="numeric"
-          value={customAmount}
-          onChange={(e) => {
-            setCustomAmount(e.target.value);
-            const n = Number(e.target.value);
-            if (!isNaN(n)) setSelectedAmount(n);
-          }}
-          className="h-11 w-full rounded-xl border border-white/15 bg-white/[0.04] px-3.5 text-base text-white placeholder:text-zinc-500 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/20 transition-all"
-        />
-
-        <button
-          type="submit"
-          className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white px-4 text-sm font-semibold text-black transition-colors hover:bg-zinc-200 cursor-pointer"
-        >
-          Add credits
-        </button>
-      </form>
+        {busy ? "Adding…" : "Add 1,000 demo credits"}
+      </button>
     </section>
   );
 }

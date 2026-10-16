@@ -16,7 +16,7 @@ export function StatCard({
   return (
     <div className="rounded-2xl border border-white/10 bg-surface p-5 sm:p-6 shadow-sm">
       <p className="text-sm text-zinc-400">{label}</p>
-      <p className="mt-2 font-display text-[2rem] font-bold leading-none tracking-tight text-white tabular-nums">
+      <p className="mt-2 text-[2rem] font-bold leading-none tracking-tight text-white tabular-nums">
         {value}
       </p>
       <p className="mt-2 text-sm text-zinc-400">{note}</p>

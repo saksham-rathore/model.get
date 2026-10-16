@@ -1,44 +1,40 @@
 import { t } from "elysia";
 
 export namespace AuthModel {
-  export const signinSchema = t.Object({
+  // ---- shared ----
+  export const credentialsSchema = t.Object({
     email: t.String(),
     password: t.String(),
   });
 
-  export type signInSchema = typeof signinSchema.static;
-
-  export const signinResponseSchema = t.Object({
-    message: t.Literal("Signed in successfully"),
-  });
-
-  export type signinResponseSchema = typeof signinResponseSchema.static;
-
-  export const signinFailureSchema = t.Object({
-    message: t.Literal("Incorrect credentials"),
-  });
-
-  export type signinFailureSchema = typeof signinFailureSchema.static;
-
-  export const signupSchema = t.Object({
-    email: t.String(),
-    password: t.String(),
-  });
-
-  export type signupSchema = typeof signinSchema.static;
-
+  // ---- POST /auth/sign-up ----
   export const signupResponseSchema = t.Object({
     id: t.String(),
+    email: t.String(),
   });
 
   export const signupFailedResponseSchema = t.Object({
     message: t.Literal("Error while signing up"),
   });
 
-  export type signupResponseSchema = typeof signinResponseSchema.static;
-  export type signupFailedResponseSchema = typeof signupFailedResponseSchema;
+  // ---- POST /auth/sign-in ----
+  export const signinResponseSchema = t.Object({
+    message: t.Literal("Signed in successfully"),
+    email: t.String(),
+  });
 
+  export const signinFailureSchema = t.Object({
+    message: t.Literal("Incorrect credentials"),
+  });
+
+  // ---- POST /auth/sign-out ----
+  export const signoutResponseSchema = t.Object({
+    message: t.Literal("Signed out"),
+  });
+
+  // ---- GET /auth/profile ----
   export const profileResponseSchema = t.Object({
+    email: t.String(),
     credits: t.Number(),
   });
 

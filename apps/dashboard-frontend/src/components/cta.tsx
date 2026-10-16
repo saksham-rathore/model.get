@@ -1,12 +1,20 @@
 import React from "react";
 
 export interface CtaProps {
+  isLoggedIn?: boolean;
+  onDashboard?: () => void;
   onCreateAccount?: () => void;
   onReadQuickstart?: () => void;
   className?: string;
 }
 
-export function Cta({ onCreateAccount, onReadQuickstart, className = "" }: CtaProps): React.JSX.Element {
+export function Cta({
+  isLoggedIn = false,
+  onDashboard,
+  onCreateAccount,
+  onReadQuickstart,
+  className = "",
+}: CtaProps): React.JSX.Element {
   return (
     <section id="start" className={`pb-20 sm:pb-28 ${className}`}>
       <div className="mx-auto w-full max-w-[1160px] px-5 sm:px-8">
@@ -16,7 +24,15 @@ export function Cta({ onCreateAccount, onReadQuickstart, className = "" }: CtaPr
           </h2>
           <p className="text-[1.1875rem] text-white/85">Free credits on signup. No card required.</p>
           <div className="mt-2.5 flex flex-wrap gap-3">
-            {onCreateAccount ? (
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={onDashboard}
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-[22px] font-semibold text-black transition-colors hover:bg-zinc-200 focus-visible:outline-white cursor-pointer"
+              >
+                Go to Dashboard
+              </button>
+            ) : onCreateAccount ? (
               <button
                 type="button"
                 onClick={onCreateAccount}

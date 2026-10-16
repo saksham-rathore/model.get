@@ -2,12 +2,20 @@ import React, { useState } from "react";
 import { RoutingConsole } from "./routing-console";
 
 export interface HeroProps {
+  isLoggedIn?: boolean;
   onGetApiKey?: () => void;
+  onDashboard?: () => void;
   onSeeQuickstart?: () => void;
   className?: string;
 }
 
-export function Hero({ onGetApiKey, onSeeQuickstart, className = "" }: HeroProps): React.JSX.Element {
+export function Hero({
+  isLoggedIn = false,
+  onGetApiKey,
+  onDashboard,
+  onSeeQuickstart,
+  className = "",
+}: HeroProps): React.JSX.Element {
   const [activeWord, setActiveWord] = useState<"fastest" | "cheapest" | "reliable">("fastest");
 
   const wordMap: Record<string, string> = {
@@ -42,7 +50,15 @@ export function Hero({ onGetApiKey, onSeeQuickstart, className = "" }: HeroProps
             style={{ "--i": 2 } as React.CSSProperties}
             className="flex flex-wrap gap-3 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
           >
-            {onGetApiKey ? (
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={onDashboard}
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-[22px] font-semibold text-black transition-colors hover:bg-zinc-200 cursor-pointer"
+              >
+                Dashboard
+              </button>
+            ) : onGetApiKey ? (
               <button
                 type="button"
                 onClick={onGetApiKey}

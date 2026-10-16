@@ -1,5 +1,6 @@
-import { Message } from "../types";
-import { BaseLlm, LlmResponse } from "./Base";
+import type { Message } from "../types";
+import { BaseLlm } from "./Base";
+import type { LlmResponse } from "./Base";
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -7,7 +8,7 @@ const client = new OpenAI({
 });
 
 export class OpenAi extends BaseLlm {
-    static async chat(model: string, messages: Message): Promise<LlmResponse> {
+    static override async chat(model: string, messages: Message): Promise<LlmResponse> {
         const response = await client.responses.create({
             model: model,
             input:  messages.map(message => ({

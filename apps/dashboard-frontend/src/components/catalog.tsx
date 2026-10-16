@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getModelsApi } from "../lib/auth";
+import { listModels } from "../lib/api";
 
 export interface CatalogModel {
   id: string;
@@ -43,7 +43,7 @@ export function Catalog({ className = "" }: CatalogProps): React.JSX.Element {
     let isMounted = true;
     async function loadModels() {
       try {
-        const res = await getModelsApi();
+        const res = await listModels();
         if (
           isMounted &&
           res?.models &&

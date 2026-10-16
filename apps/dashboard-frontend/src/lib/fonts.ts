@@ -15,7 +15,7 @@ export const fontFamilies = {
 } as const;
 
 export const fontClasses = {
-  display: "font-display",
+  display: "",
   sans: "font-sans",
   mono: "font-mono",
 } as const;
@@ -30,8 +30,8 @@ export interface FontDefinition {
 
 export const displayFont: FontDefinition = {
   name: "Bricolage Grotesque",
-  variable: "--font-display",
-  className: "font-display",
+  variable: "--",
+  className: "",
   family: fontFamilies.display,
   weights: ["500", "600", "700", "800"],
 };

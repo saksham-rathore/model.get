@@ -1,13 +1,11 @@
-import React from "react";
-import { useDashboard, formatMoney } from "./DashboardContext";
-
-export interface ActiveKeysCardProps {
-  onManageClick?: () => void;
-}
+// Short list of enabled keys with what each one spent.
+import { useDashboard } from "./DashboardContext";
 
 export function ActiveKeysCard({
   onManageClick,
-}: ActiveKeysCardProps): React.JSX.Element {
+}: {
+  onManageClick?: () => void;
+}): React.JSX.Element {
   const { activeKeys } = useDashboard();
 
   return (
@@ -45,11 +43,11 @@ export function ActiveKeysCard({
                 <div className="min-w-0">
                   <p className="truncate font-medium text-white">{k.name}</p>
                   <p className="font-mono text-[13px] text-zinc-400">
-                    mg-sk-••••{k.tail}
+                    …{k.apiKey.slice(-4)}
                   </p>
                 </div>
                 <p className="flex-none text-sm tabular-nums text-zinc-300 font-medium">
-                  {formatMoney(k.used)}
+                  {k.credisConsumed.toLocaleString()} credits
                 </p>
               </li>
             ))}

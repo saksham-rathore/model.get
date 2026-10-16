@@ -38,13 +38,26 @@ export function Landing({
         onDashboard={onDashboard}
       />
       <main>
-        <Hero onGetApiKey={onSignUp} />
+        <Hero
+          isLoggedIn={isLoggedIn}
+          onGetApiKey={onSignUp}
+          onDashboard={onDashboard}
+        />
         <ProvidersMarquee />
         <Steps />
         <Catalog />
-        <Pricing onSelectFree={onSignUp} onSelectPayg={onSignUp} onSelectEnterprise={onSignUp} />
+        <Pricing
+          isLoggedIn={isLoggedIn}
+          onSelectFree={isLoggedIn ? onDashboard : onSignUp}
+          onSelectPayg={isLoggedIn ? onDashboard : onSignUp}
+          onSelectEnterprise={onSignUp}
+        />
         <Faq />
-        <Cta onCreateAccount={onSignUp} />
+        <Cta
+          isLoggedIn={isLoggedIn}
+          onCreateAccount={onSignUp}
+          onDashboard={onDashboard}
+        />
       </main>
       <Footer />
     </div>
