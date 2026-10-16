@@ -62,7 +62,7 @@ export function SignIn({
       setLocalError(
         err instanceof Error
           ? err.message
-          : "Failed to sign in. Please try again."
+          : "Failed to sign in. Please try again.",
       );
     } finally {
       setLocalLoading(false);
@@ -91,7 +91,9 @@ export function SignIn({
   };
 
   return (
-    <div className={`w-full min-h-screen bg-black font-sans text-[17px] leading-relaxed text-zinc-100 antialiased ${className}`}>
+    <div
+      className={`w-full min-h-screen bg-black font-sans text-[17px] leading-relaxed text-zinc-100 antialiased ${className}`}
+    >
       {/* SIGN IN: two-column layout. Left = form, right = product preview (desktop only). */}
       <main className="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <section className="flex min-h-svh min-w-0 flex-col px-5 py-6 sm:px-10 lg:px-14">
@@ -103,7 +105,12 @@ export function SignIn({
               aria-label="model.get home"
               className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
             >
-              <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 30 30"
+                aria-hidden="true"
+              >
                 <rect width="30" height="30" rx="9" fill="#fff" />
                 <path
                   d="M6.5 15H11.5M11.5 15C16 15 15 9.5 19.5 9.5H22M11.5 15C16 15 15 20.5 19.5 20.5H22"
@@ -136,7 +143,9 @@ export function SignIn({
               <h1 className="text-balance font-display text-[clamp(2rem,1.4rem+2vw,2.75rem)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
                 Welcome back
               </h1>
-              <p className="text-base text-zinc-400">Sign in to manage your keys, models and usage.</p>
+              <p className="text-base text-zinc-400">
+                Sign in to manage your keys, models and usage.
+              </p>
             </div>
 
             <div
@@ -151,7 +160,12 @@ export function SignIn({
                   aria-label="Continue with GitHub"
                   className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
                     <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
                   </svg>
                   GitHub
@@ -162,7 +176,12 @@ export function SignIn({
                   aria-label="Continue with Google"
                   className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
                     <path d="M21.35 11.1H12v2.9h5.35c-.25 1.4-1.7 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.9s2.65-5.9 5.85-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.65 3.8 14.55 2.9 12 2.9 6.95 2.9 2.9 6.95 2.9 12s4.05 9.1 9.1 9.1c5.25 0 8.75-3.7 8.75-8.9 0-.6-.05-1.05-.15-1.5z" />
                   </svg>
                   Google
@@ -175,14 +194,21 @@ export function SignIn({
               className="grid gap-7 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
               {/* Divider with a label in the middle. */}
-              <div role="separator" className="flex items-center gap-4 text-sm text-zinc-500">
+              <div
+                role="separator"
+                className="flex items-center gap-4 text-sm text-zinc-500"
+              >
                 <span className="h-px flex-1 bg-white/10" />
                 <span>or use your email</span>
                 <span className="h-px flex-1 bg-white/10" />
               </div>
 
               {/* Sign-in form */}
-              <form id="signin-form" onSubmit={handleSubmit} className="grid gap-5">
+              <form
+                id="signin-form"
+                onSubmit={handleSubmit}
+                className="grid gap-5"
+              >
                 {/* Form-level error banner */}
                 {displayError && (
                   <div
@@ -194,7 +220,10 @@ export function SignIn({
                 )}
 
                 <div className="grid gap-2">
-                  <label htmlFor="si-email" className="text-sm font-medium text-zinc-200">
+                  <label
+                    htmlFor="si-email"
+                    className="text-sm font-medium text-zinc-200"
+                  >
                     Email
                   </label>
                   <input
@@ -213,7 +242,10 @@ export function SignIn({
 
                 <div className="grid gap-2">
                   <div className="flex items-center justify-between gap-3">
-                    <label htmlFor="si-password" className="text-sm font-medium text-zinc-200">
+                    <label
+                      htmlFor="si-password"
+                      className="text-sm font-medium text-zinc-200"
+                    >
                       Password
                     </label>
                     <a
@@ -241,7 +273,9 @@ export function SignIn({
                       onClick={() => setShowPassword((prev) => !prev)}
                       aria-controls="si-password"
                       aria-pressed={showPassword}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                       className="group absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
                     >
                       {showPassword ? (
@@ -294,9 +328,24 @@ export function SignIn({
                 >
                   {isLoading ? (
                     <span className="inline-flex items-center gap-2">
-                      <svg className="h-4 w-4 animate-spin text-black" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      <svg
+                        className="h-4 w-4 animate-spin text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        />
                       </svg>
                       Signing in...
                     </span>
@@ -365,7 +414,8 @@ export function SignIn({
                 Pick up where your routing left off.
               </h2>
               <p className="text-[1.0625rem] text-zinc-400">
-                Watch requests land on the right model, check what they cost, and tune fallbacks from one dashboard.
+                Watch requests land on the right model, check what they cost,
+                and tune fallbacks from one dashboard.
               </p>
             </div>
 
@@ -375,11 +425,16 @@ export function SignIn({
             >
               <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+                  <span
+                    className="relative flex h-2.5 w-2.5"
+                    aria-hidden="true"
+                  >
                     <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-60 motion-safe:animate-ping" />
                     <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
                   </span>
-                  <span className="text-sm font-medium text-white">Live requests</span>
+                  <span className="text-sm font-medium text-white">
+                    Live requests
+                  </span>
                 </div>
                 <span className="text-xs text-zinc-400">Sample data</span>
               </div>
@@ -390,12 +445,20 @@ export function SignIn({
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-3.5 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-mono text-[13px] text-white">anthropic/claude-sonnet</p>
-                    <p className="text-xs text-zinc-400">Most reliable, 2s ago</p>
+                    <p className="truncate font-mono text-[13px] text-white">
+                      anthropic/claude-sonnet
+                    </p>
+                    <p className="text-xs text-zinc-400">
+                      Most reliable, 2s ago
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[13px] tabular-nums text-white">412 ms</p>
-                    <p className="text-xs tabular-nums text-zinc-400">$0.0084</p>
+                    <p className="text-[13px] tabular-nums text-white">
+                      412 ms
+                    </p>
+                    <p className="text-xs tabular-nums text-zinc-400">
+                      $0.0084
+                    </p>
                   </div>
                 </li>
                 <li
@@ -403,12 +466,18 @@ export function SignIn({
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-white/10 px-5 py-3.5 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-mono text-[13px] text-white">meta/llama-3.3-70b</p>
+                    <p className="truncate font-mono text-[13px] text-white">
+                      meta/llama-3.3-70b
+                    </p>
                     <p className="text-xs text-zinc-400">Fastest, 5s ago</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[13px] tabular-nums text-white">238 ms</p>
-                    <p className="text-xs tabular-nums text-zinc-400">$0.0006</p>
+                    <p className="text-[13px] tabular-nums text-white">
+                      238 ms
+                    </p>
+                    <p className="text-xs tabular-nums text-zinc-400">
+                      $0.0006
+                    </p>
                   </div>
                 </li>
                 <li
@@ -416,12 +485,18 @@ export function SignIn({
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-white/10 px-5 py-3.5 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-mono text-[13px] text-white">deepseek/deepseek-v3</p>
+                    <p className="truncate font-mono text-[13px] text-white">
+                      deepseek/deepseek-v3
+                    </p>
                     <p className="text-xs text-zinc-400">Cheapest, 9s ago</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[13px] tabular-nums text-white">506 ms</p>
-                    <p className="text-xs tabular-nums text-zinc-400">$0.0003</p>
+                    <p className="text-[13px] tabular-nums text-white">
+                      506 ms
+                    </p>
+                    <p className="text-xs tabular-nums text-zinc-400">
+                      $0.0003
+                    </p>
                   </div>
                 </li>
                 <li
@@ -430,16 +505,24 @@ export function SignIn({
                 >
                   <div className="min-w-0">
                     <p className="flex items-center gap-2">
-                      <span className="truncate font-mono text-[13px] text-white">openai/gpt</span>
+                      <span className="truncate font-mono text-[13px] text-white">
+                        openai/gpt
+                      </span>
                       <span className="flex-none rounded-md bg-amber-400/10 px-1.5 py-0.5 text-[11px] font-medium text-amber-300">
                         fallback
                       </span>
                     </p>
-                    <p className="text-xs text-zinc-400">After a timeout on google/gemini-pro, 14s ago</p>
+                    <p className="text-xs text-zinc-400">
+                      After a timeout on google/gemini-pro, 14s ago
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[13px] tabular-nums text-white">357 ms</p>
-                    <p className="text-xs tabular-nums text-zinc-400">$0.0051</p>
+                    <p className="text-[13px] tabular-nums text-white">
+                      357 ms
+                    </p>
+                    <p className="text-xs tabular-nums text-zinc-400">
+                      $0.0051
+                    </p>
                   </div>
                 </li>
                 <li
@@ -447,12 +530,18 @@ export function SignIn({
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-white/10 px-5 py-3.5 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-mono text-[13px] text-white">google/gemini-pro</p>
+                    <p className="truncate font-mono text-[13px] text-white">
+                      google/gemini-pro
+                    </p>
                     <p className="text-xs text-zinc-400">Fastest, 21s ago</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[13px] tabular-nums text-white">291 ms</p>
-                    <p className="text-xs tabular-nums text-zinc-400">$0.0021</p>
+                    <p className="text-[13px] tabular-nums text-white">
+                      291 ms
+                    </p>
+                    <p className="text-xs tabular-nums text-zinc-400">
+                      $0.0021
+                    </p>
                   </div>
                 </li>
               </ul>
@@ -460,15 +549,21 @@ export function SignIn({
               <dl className="grid grid-cols-3 border-t border-white/10 bg-white/[0.03]">
                 <div className="px-5 py-4">
                   <dt className="text-xs text-zinc-400">Requests today</dt>
-                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">12,480</dd>
+                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">
+                    12,480
+                  </dd>
                 </div>
                 <div className="border-l border-white/10 px-5 py-4">
                   <dt className="text-xs text-zinc-400">Spend</dt>
-                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">$18.42</dd>
+                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">
+                    $18.42
+                  </dd>
                 </div>
                 <div className="border-l border-white/10 px-5 py-4">
                   <dt className="text-xs text-zinc-400">Success rate</dt>
-                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">99.97%</dd>
+                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">
+                    99.97%
+                  </dd>
                 </div>
               </dl>
             </div>

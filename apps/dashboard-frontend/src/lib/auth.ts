@@ -146,3 +146,31 @@ export async function deleteApiKeyApi(
 
   return data;
 }
+
+export interface BackendModel {
+  id: string;
+  name: string;
+  slug: string;
+  company: {
+    id: string;
+    name: string;
+    website: string;
+  };
+}
+
+export async function getModelsApi(): Promise<{ models: BackendModel[] }> {
+  const response = await fetch(`${API_BASE_URL}/models`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to fetch models");
+  }
+
+  return data;
+}

@@ -74,7 +74,7 @@ export function SignUp({
       setLocalError(
         err instanceof Error
           ? err.message
-          : "Failed to create account. Please try again."
+          : "Failed to create account. Please try again.",
       );
     } finally {
       setLocalLoading(false);
@@ -110,7 +110,9 @@ export function SignUp({
   };
 
   return (
-    <div className={`w-full min-h-screen bg-black font-sans text-[17px] leading-relaxed text-zinc-100 antialiased ${className}`}>
+    <div
+      className={`w-full min-h-screen bg-black font-sans text-[17px] leading-relaxed text-zinc-100 antialiased ${className}`}
+    >
       {/* SIGN UP: two-column layout. Left = form, right = quickstart preview (desktop only). */}
       <main className="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <section className="flex min-h-svh min-w-0 flex-col px-5 py-6 sm:px-10 lg:px-14">
@@ -122,7 +124,12 @@ export function SignUp({
               aria-label="model.get home"
               className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
             >
-              <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 30 30"
+                aria-hidden="true"
+              >
                 <rect width="30" height="30" rx="9" fill="#fff" />
                 <path
                   d="M6.5 15H11.5M11.5 15C16 15 15 9.5 19.5 9.5H22M11.5 15C16 15 15 20.5 19.5 20.5H22"
@@ -155,7 +162,9 @@ export function SignUp({
               <h1 className="text-balance font-display text-[clamp(2rem,1.4rem+2vw,2.75rem)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
                 Create your account
               </h1>
-              <p className="text-base text-zinc-400">Free credits on signup. No card required.</p>
+              <p className="text-base text-zinc-400">
+                Free credits on signup. No card required.
+              </p>
             </div>
 
             <div
@@ -170,7 +179,12 @@ export function SignUp({
                   aria-label="Continue with GitHub"
                   className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
                     <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
                   </svg>
                   GitHub
@@ -181,7 +195,12 @@ export function SignUp({
                   aria-label="Continue with Google"
                   className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
                     <path d="M21.35 11.1H12v2.9h5.35c-.25 1.4-1.7 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.9s2.65-5.9 5.85-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.65 3.8 14.55 2.9 12 2.9 6.95 2.9 2.9 6.95 2.9 12s4.05 9.1 9.1 9.1c5.25 0 8.75-3.7 8.75-8.9 0-.6-.05-1.05-.15-1.5z" />
                   </svg>
                   Google
@@ -194,14 +213,21 @@ export function SignUp({
               className="grid gap-7 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
               {/* Divider with a label in the middle. */}
-              <div role="separator" className="flex items-center gap-4 text-sm text-zinc-500">
+              <div
+                role="separator"
+                className="flex items-center gap-4 text-sm text-zinc-500"
+              >
                 <span className="h-px flex-1 bg-white/10" />
                 <span>or use your email</span>
                 <span className="h-px flex-1 bg-white/10" />
               </div>
 
               {/* Sign-up form */}
-              <form id="signup-form" onSubmit={handleSubmit} className="grid gap-5">
+              <form
+                id="signup-form"
+                onSubmit={handleSubmit}
+                className="grid gap-5"
+              >
                 {/* Form-level error banner */}
                 {displayError && (
                   <div
@@ -213,7 +239,10 @@ export function SignUp({
                 )}
 
                 <div className="grid gap-2">
-                  <label htmlFor="su-name" className="text-sm font-medium text-zinc-200">
+                  <label
+                    htmlFor="su-name"
+                    className="text-sm font-medium text-zinc-200"
+                  >
                     Full name
                   </label>
                   <input
@@ -230,7 +259,10 @@ export function SignUp({
                 </div>
 
                 <div className="grid gap-2">
-                  <label htmlFor="su-email" className="text-sm font-medium text-zinc-200">
+                  <label
+                    htmlFor="su-email"
+                    className="text-sm font-medium text-zinc-200"
+                  >
                     Work email
                   </label>
                   <input
@@ -248,7 +280,10 @@ export function SignUp({
                 </div>
 
                 <div className="grid gap-2">
-                  <label htmlFor="su-password" className="text-sm font-medium text-zinc-200">
+                  <label
+                    htmlFor="su-password"
+                    className="text-sm font-medium text-zinc-200"
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -270,7 +305,9 @@ export function SignUp({
                       onClick={() => setShowPassword((prev) => !prev)}
                       aria-controls="su-password"
                       aria-pressed={showPassword}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                       className="group absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
                     >
                       {showPassword ? (
@@ -303,7 +340,10 @@ export function SignUp({
                       )}
                     </button>
                   </div>
-                  <p id="su-password-hint" className="text-[13px] text-zinc-400">
+                  <p
+                    id="su-password-hint"
+                    className="text-[13px] text-zinc-400"
+                  >
                     Use 8 or more characters.
                   </p>
                 </div>
@@ -319,11 +359,17 @@ export function SignUp({
                   />
                   <span>
                     I agree to the{" "}
-                    <a href="#terms" className="font-medium text-white underline underline-offset-4 hover:text-brand">
+                    <a
+                      href="#terms"
+                      className="font-medium text-white underline underline-offset-4 hover:text-brand"
+                    >
                       Terms of Service
                     </a>{" "}
                     and{" "}
-                    <a href="#privacy" className="font-medium text-white underline underline-offset-4 hover:text-brand">
+                    <a
+                      href="#privacy"
+                      className="font-medium text-white underline underline-offset-4 hover:text-brand"
+                    >
                       Privacy Policy
                     </a>
                     .
@@ -337,9 +383,24 @@ export function SignUp({
                 >
                   {isLoading ? (
                     <span className="inline-flex items-center gap-2">
-                      <svg className="h-4 w-4 animate-spin text-black" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      <svg
+                        className="h-4 w-4 animate-spin text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        />
                       </svg>
                       Creating account...
                     </span>
@@ -408,7 +469,8 @@ export function SignUp({
                 Your first API call is a minute away.
               </h2>
               <p className="text-[1.0625rem] text-zinc-400">
-                Create an account, copy your key, and send a request. Switching models later is one string.
+                Create an account, copy your key, and send a request. Switching
+                models later is one string.
               </p>
             </div>
 
@@ -434,15 +496,31 @@ export function SignUp({
               <pre className="m-0 overflow-x-auto whitespace-pre bg-[#050506] px-5 py-5 font-mono text-[13px] leading-[1.75] text-zinc-200">
                 <code>
                   <span className="text-brand">curl</span>{" "}
-                  <span className="text-accent">"https://api.model.get/v1/chat/completions"</span> \{"\n"}
-                  {"  "}-H <span className="text-accent">"Authorization: Bearer $MODELGET_API_KEY"</span> \{"\n"}
-                  {"  "}-d <span className="text-accent">'{"{"}"model": "auto", "route": "cheapest",{"\n"}</span>
-                  <span className="text-accent">       "messages": [{"{"}"role": "user", "content": "Hello"{"}"}]'</span>
+                  <span className="text-accent">
+                    "https://api.model.get/v1/chat/completions"
+                  </span>{" "}
+                  \{"\n"}
+                  {"  "}-H{" "}
+                  <span className="text-accent">
+                    "Authorization: Bearer $MODELGET_API_KEY"
+                  </span>{" "}
+                  \{"\n"}
+                  {"  "}-d{" "}
+                  <span className="text-accent">
+                    '{"{"}"model": "auto", "route": "cheapest",{"\n"}
+                  </span>
+                  <span className="text-accent">
+                    {" "}
+                    "messages": [{"{"}"role": "user", "content": "Hello"{"}"}]'
+                  </span>
                 </code>
               </pre>
               <div className="flex items-center justify-between gap-4 border-t border-white/10 px-5 py-3.5 text-[13px]">
                 <span className="text-zinc-400">
-                  Response from <span className="font-mono text-white">deepseek/deepseek-v3</span>
+                  Response from{" "}
+                  <span className="font-mono text-white">
+                    deepseek/deepseek-v3
+                  </span>
                 </span>
                 <span className="tabular-nums text-accent">200 in 506 ms</span>
               </div>

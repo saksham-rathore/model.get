@@ -9,7 +9,7 @@ export function ModelsTableCard(): React.JSX.Element {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return models;
     return models.filter((m) =>
-      `${m.provider}/${m.name}`.toLowerCase().includes(q),
+      `${m.provider}/${m.name} ${m.slug || ""}`.toLowerCase().includes(q),
     );
   }, [models, searchQuery]);
 
@@ -21,7 +21,7 @@ export function ModelsTableCard(): React.JSX.Element {
             Available models
           </h2>
           <p className="text-sm text-zinc-400">
-            Prices per 1M tokens. Sample data.
+            Live models loaded from database. Prices per 1M tokens.
           </p>
         </div>
         <div className="w-full sm:w-64">
@@ -64,7 +64,7 @@ export function ModelsTableCard(): React.JSX.Element {
           <tbody>
             {filteredModels.length > 0 ? (
               filteredModels.map((m) => {
-                const modelId = `${m.provider}/${m.name}`;
+                const modelId = m.slug || `${m.provider}/${m.name}`;
                 return (
                   <tr
                     key={modelId}
@@ -76,10 +76,10 @@ export function ModelsTableCard(): React.JSX.Element {
                     </td>
                     <td className="pr-4 text-zinc-400">{m.context}</td>
                     <td className="pr-4 text-white font-medium">
-                      {formatMoney(m.inputCost)}
+                      {m.inputCost === 0 ? "Free" : formatMoney(m.inputCost)}
                     </td>
                     <td className="pr-4 text-white font-medium">
-                      {formatMoney(m.outputCost)}
+                      {m.outputCost === 0 ? "Free" : formatMoney(m.outputCost)}
                     </td>
                     <td className="pr-4 text-zinc-400">{m.latency} ms</td>
                     <td className="text-right">

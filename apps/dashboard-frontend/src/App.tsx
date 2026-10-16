@@ -4,7 +4,8 @@ import { FontLinks } from "./fonts";
 import { SignIn, SignUp, Landing, Dashboard, Aplikeys, Credits } from "./pages";
 import { DashboardProvider } from "./components/dashboard";
 
-export type PageRoute = "landing" | "signin" | "signup" | "dashboard" | "keys" | "credits";
+export type PageRoute =
+  "landing" | "signin" | "signup" | "dashboard" | "keys" | "credits";
 
 function resolveRoute(): PageRoute {
   if (typeof window !== "undefined") {

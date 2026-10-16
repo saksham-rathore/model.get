@@ -7,116 +7,114 @@ import { OpenAi } from "./llms/OpenAI";
 import { Claude } from "./llms/Claude";
 import { LlmResponse } from "./llms/Base";
 
-export const app = new Elysia()
-  .use(bearer())
-  .post(
-    "/api/v1/chat/completions",
-    async ({ bearer: apikey, body, status }) => {
-      const model = body.model;
-      const [_companyName, providerModelName] = model.split("/");
-      const apikeyDb = await prisma.apiKey.findFirst({
-        where: {
-          apiKey: apikey,
-          disabled: false,
-          deleted: false,
-        },
-        select: {
-          user: true,
-        },
+export const app = new Elysia().use(bearer()).post(
+  "/api/v1/chat/completions",
+  async ({ bearer: apikey, body, status }) => {
+    const model = body.model;
+    const [_companyName, providerModelName] = model.split("/");
+    const apikeyDb = await prisma.apiKey.findFirst({
+      where: {
+        apiKey: apikey,
+        disabled: false,
+        deleted: false,
+      },
+      select: {
+        user: true,
+      },
+    });
+
+    if (!apikeyDb) {
+      return status(403, {
+        message: "Invalid api key",
       });
+    }
 
-      if (!apikeyDb) {
-        return status(403, {
-          message: "Invalid api key",
-        });
-      }
-
-      if (apikeyDb?.user.credits <= 0) {
-        return status(403, {
-          message: "You dont have enough credits in your db",
-        });
-      }
-
-      const modelDb = await prisma.model.findFirst({
-        where: {
-          slug: model,
-        },
+    if (apikeyDb?.user.credits <= 0) {
+      return status(403, {
+        message: "You dont have enough credits in your db",
       });
+    }
 
-      if (!modelDb) {
-        return status(403, {
-          message: "This is an invalid model we dont have support",
-        });
-      }
+    const modelDb = await prisma.model.findFirst({
+      where: {
+        slug: model,
+      },
+    });
 
-      const providers = await prisma.modelProviderMapping.findMany({
-        where: {
-          modelId: modelDb.id,
-        },
-        include: {
-          provider: true,
-        },
+    if (!modelDb) {
+      return status(403, {
+        message: "This is an invalid model we dont have support",
       });
+    }
 
-      const provider = providers[Math.floor(Math.random() * providers.length)];
+    const providers = await prisma.modelProviderMapping.findMany({
+      where: {
+        modelId: modelDb.id,
+      },
+      include: {
+        provider: true,
+      },
+    });
 
-      let response: LlmResponse | null = null;
-      if (provider.provider.name === "Google API") {
-        response = await Gemini.chat(providerModelName, body.messages);
-      }
+    const provider = providers[Math.floor(Math.random() * providers.length)];
 
-      if (provider.provider.name === "Google Vertex") {
-        response = await Gemini.chat(providerModelName, body.messages);
-      }
+    let response: LlmResponse | null = null;
+    if (provider.provider.name === "Google API") {
+      response = await Gemini.chat(providerModelName, body.messages);
+    }
 
-      if (provider.provider.name === "OpenAI") {
-        response = await OpenAi.chat(providerModelName, body.messages);
-      }
+    if (provider.provider.name === "Google Vertex") {
+      response = await Gemini.chat(providerModelName, body.messages);
+    }
 
-      if (provider.provider.name === "Claude API") {
-        response = await Claude.chat(providerModelName, body.messages);
-      }
+    if (provider.provider.name === "OpenAI") {
+      response = await OpenAi.chat(providerModelName, body.messages);
+    }
 
-      if (!response) {
-        return status(403, {
-          message: "No provider found for this model",
-        });
-      }
+    if (provider.provider.name === "Claude API") {
+      response = await Claude.chat(providerModelName, body.messages);
+    }
 
-      const creditsUsed =
-        (response.inputTokensConsumed * provider.inputTokenCost +
-          response.outputTokensConsumed * provider.outputTokenCost) /
-        10;
-      console.log(creditsUsed);
-      const res = await prisma.user.update({
-        where: {
-          id: apikeyDb.user.id,
-        },
-        data: {
-          credits: {
-            decrement: creditsUsed,
-          },
-        },
+    if (!response) {
+      return status(403, {
+        message: "No provider found for this model",
       });
-      console.log(res);
-      const res2 = await prisma.apiKey.update({
-        where: {
-          apiKey: apikey,
-        },
-        data: {
-          creditsConsumed: {
-            increment: creditsUsed,
-          },
-        },
-      });
-      console.log(res2);
+    }
 
-      return response;
-    },
-    {
-      body: Conversation,
-    },
-  )
+    const creditsUsed =
+      (response.inputTokensConsumed * provider.inputTokenCost +
+        response.outputTokensConsumed * provider.outputTokenCost) /
+      10;
+    console.log(creditsUsed);
+    const res = await prisma.user.update({
+      where: {
+        id: apikeyDb.user.id,
+      },
+      data: {
+        credits: {
+          decrement: creditsUsed,
+        },
+      },
+    });
+    console.log(res);
+    const res2 = await prisma.apiKey.update({
+      where: {
+        apiKey: apikey,
+      },
+      data: {
+        creditsConsumed: {
+          increment: creditsUsed,
+        },
+      },
+    });
+    console.log(res2);
+
+    return response;
+  },
+  {
+    body: Conversation,
+  },
+);
 
 if (import.meta.main) {
   app.listen(+(process.env.PORT || 4000));

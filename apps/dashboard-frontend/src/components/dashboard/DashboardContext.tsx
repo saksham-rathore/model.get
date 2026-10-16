@@ -11,6 +11,7 @@ import {
   getApiKeysApi,
   updateApiKeyApi,
   deleteApiKeyApi,
+  getModelsApi,
 } from "../../lib/auth";
 
 export interface ApiKeyItem {
@@ -26,8 +27,10 @@ export interface ApiKeyItem {
 }
 
 export interface ModelItem {
+  id: string;
   provider: string;
   name: string;
+  slug: string;
   context: string;
   inputCost: number;
   outputCost: number;
@@ -59,116 +62,6 @@ export interface DashboardContextType {
   copyToClipboard: (text: string, label?: string) => Promise<void>;
 }
 
-const INITIAL_KEYS: ApiKeyItem[] = [
-  {
-    id: 1,
-    name: "Production backend",
-    tail: "3f9a",
-    created: "Sep 12, 2026",
-    limit: 200,
-    used: 18.42,
-    reqs: 12480,
-    on: true,
-  },
-  {
-    id: 2,
-    name: "Staging",
-    tail: "b71c",
-    created: "Sep 28, 2026",
-    limit: 50,
-    used: 4.9,
-    reqs: 1820,
-    on: true,
-  },
-  {
-    id: 3,
-    name: "Local dev",
-    tail: "9d02",
-    created: "Oct 02, 2026",
-    limit: null,
-    used: 1.15,
-    reqs: 410,
-    on: true,
-  },
-  {
-    id: 4,
-    name: "Old prototype",
-    tail: "ae55",
-    created: "Jun 01, 2026",
-    limit: null,
-    used: 3.4,
-    reqs: 960,
-    on: false,
-  },
-];
-
-const INITIAL_MODELS: ModelItem[] = [
-  {
-    provider: "anthropic",
-    name: "claude-sonnet",
-    context: "200K",
-    inputCost: 3,
-    outputCost: 15,
-    latency: 420,
-  },
-  {
-    provider: "openai",
-    name: "gpt",
-    context: "128K",
-    inputCost: 2.5,
-    outputCost: 10,
-    latency: 360,
-  },
-  {
-    provider: "google",
-    name: "gemini-pro",
-    context: "1M",
-    inputCost: 1.25,
-    outputCost: 5,
-    latency: 290,
-  },
-  {
-    provider: "meta",
-    name: "llama-3.3-70b",
-    context: "128K",
-    inputCost: 0.6,
-    outputCost: 0.8,
-    latency: 240,
-  },
-  {
-    provider: "mistral",
-    name: "mistral-large",
-    context: "128K",
-    inputCost: 2,
-    outputCost: 6,
-    latency: 330,
-  },
-  {
-    provider: "deepseek",
-    name: "deepseek-v3",
-    context: "128K",
-    inputCost: 0.3,
-    outputCost: 1.1,
-    latency: 510,
-  },
-  {
-    provider: "qwen",
-    name: "qwen-2.5-coder-32b",
-    context: "32K",
-    inputCost: 0.2,
-    outputCost: 0.2,
-    latency: 270,
-  },
-  {
-    provider: "meta",
-    name: "llama-3.2-90b-vision",
-    context: "128K",
-    inputCost: 0.9,
-    outputCost: 0.9,
-    latency: 450,
-  },
-];
-
 export const formatMoney = (n: number): string =>
   "$" +
   n.toLocaleString("en-US", {
@@ -187,10 +80,10 @@ const DashboardContext = createContext<DashboardContextType | null>(null);
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [total, setTotal] = useState(100);
-  const [seq, setSeq] = useState(4);
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [newKey, setNewKey] = useState<NewKeyData | null>(null);
-  const [keys, setKeys] = useState<ApiKeyItem[]>(INITIAL_KEYS);
+  const [keys, setKeys] = useState<ApiKeyItem[]>([]);
+  const [models, setModels] = useState<ModelItem[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastTimer, setToastTimer] = useState<ReturnType<
     typeof setTimeout
@@ -198,17 +91,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let isMounted = true;
+
     async function loadApiKeys() {
       try {
         const res = await getApiKeysApi();
-        if (
-          isMounted &&
-          res?.apiKeys &&
-          Array.isArray(res.apiKeys) &&
-          res.apiKeys.length > 0
-        ) {
+        if (isMounted && res?.apiKeys && Array.isArray(res.apiKeys)) {
           const loadedKeys: ApiKeyItem[] = res.apiKeys.map((k) => ({
-            id: Number(k.id) || 1,
+            id: Number(k.id) || Date.now(),
             name: k.name,
             tail: k.apiKey.slice(-4),
             key: k.apiKey,
@@ -230,7 +119,77 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         // Not authenticated yet or server error
       }
     }
+
+    async function loadModels() {
+      try {
+        const res = await getModelsApi();
+        if (isMounted && res?.models && Array.isArray(res.models)) {
+          const loadedModels: ModelItem[] = res.models.map((m) => {
+            const hasSlash = m.slug.includes("/");
+            const provider =
+              (hasSlash
+                ? m.slug.split("/")[0]
+                : m.company?.name?.toLowerCase()) || "ai";
+            const modelName =
+              (hasSlash
+                ? m.slug.split("/")[1]
+                : m.name.replace(/^[^:]+:\s*/, "")) ||
+              m.name ||
+              m.slug;
+
+            const lower = m.slug.toLowerCase();
+            let context = "128K";
+            if (lower.includes("embedding")) context = "8K";
+            else if (lower.includes("gemini")) context = "1M";
+            else if (lower.includes("32b") || lower.includes("32k"))
+              context = "32K";
+            else if (lower.includes("claude") || lower.includes("200k"))
+              context = "200K";
+
+            const isFree = lower.includes("free");
+            let inputCost = 1.5;
+            let outputCost = 4.0;
+            let latency = 320;
+
+            if (isFree) {
+              inputCost = 0;
+              outputCost = 0;
+              latency = 210;
+            } else if (provider === "google") {
+              inputCost = 1.25;
+              outputCost = 5.0;
+              latency = 290;
+            } else if (provider === "anthropic") {
+              inputCost = 3.0;
+              outputCost = 15.0;
+              latency = 420;
+            } else if (provider === "openai") {
+              inputCost = 2.5;
+              outputCost = 10.0;
+              latency = 360;
+            }
+
+            return {
+              id: m.id,
+              provider,
+              name: modelName,
+              slug: m.slug,
+              context,
+              inputCost,
+              outputCost,
+              latency,
+            };
+          });
+          setModels(loadedModels);
+        }
+      } catch (err) {
+        console.error("Failed to load models:", err);
+      }
+    }
+
     loadApiKeys();
+    loadModels();
+
     return () => {
       isMounted = false;
     };
@@ -278,30 +237,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const createKey = useCallback(
     async (name: string, limit: number | null = null): Promise<string> => {
-      let generatedKey: string;
-      let newId: number;
-
-      try {
-        // Call backend API to create real API key in database
-        const backendRes = await createApiKeyApi({ name });
-        generatedKey = backendRes.apiKey;
-        newId = Number(backendRes.id) || seq + 1;
-      } catch (err) {
-        console.warn("Backend API key creation failed, fallback to local:", err);
-        const bytes = new Uint8Array(16);
-        if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-          crypto.getRandomValues(bytes);
-        } else {
-          for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
-        }
-        const hex = Array.from(bytes, (b) =>
-          b.toString(16).padStart(2, "0"),
-        ).join("");
-        generatedKey = `mg-sk-${hex}`;
-        newId = seq + 1;
-      }
-
-      setSeq(newId);
+      // Call backend API to create real API key in database
+      const backendRes = await createApiKeyApi({ name });
+      const generatedKey = backendRes.apiKey;
+      const newId = Number(backendRes.id) || Date.now();
 
       const newItem: ApiKeyItem = {
         id: newId,
@@ -320,7 +259,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       showToast("Key created");
       return generatedKey;
     },
-    [seq, showToast],
+    [showToast],
   );
 
   const revokeKey = useCallback(
@@ -373,7 +312,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     () => ({
       total,
       keys,
-      models: INITIAL_MODELS,
+      models,
       newKey,
       selectedAmount,
       setSelectedAmount,
@@ -392,6 +331,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     [
       total,
       keys,
+      models,
       newKey,
       selectedAmount,
       usedCredits,
