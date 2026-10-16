@@ -8,6 +8,7 @@ import {
 
 export interface ApiKeysPageProps {
   onNavigate?: (page: "dashboard" | "keys" | "credits" | "landing") => void;
+  onSignOut?: () => void;
   className?: string;
 }
 
@@ -36,9 +37,9 @@ export function ApiKeysContent(): React.JSX.Element {
   );
 }
 
-export function Aplikeys({ onNavigate }: ApiKeysPageProps): React.JSX.Element {
+export function Aplikeys({ onNavigate, onSignOut }: ApiKeysPageProps): React.JSX.Element {
   return (
-    <DashboardLayout activePage="keys" onNavigate={onNavigate}>
+    <DashboardLayout activePage="keys" onNavigate={onNavigate} onSignOut={onSignOut}>
       <ApiKeysContent />
     </DashboardLayout>
   );

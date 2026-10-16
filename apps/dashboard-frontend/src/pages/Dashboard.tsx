@@ -13,6 +13,7 @@ import {
 
 export interface DashboardPageProps {
   onNavigate?: (page: "dashboard" | "keys" | "credits" | "landing") => void;
+  onSignOut?: () => void;
   className?: string;
 }
 
@@ -80,9 +81,9 @@ export function DashboardContent({ onNavigate }: { onNavigate?: (page: "dashboar
   );
 }
 
-export function Dashboard({ onNavigate }: DashboardPageProps): React.JSX.Element {
+export function Dashboard({ onNavigate, onSignOut }: DashboardPageProps): React.JSX.Element {
   return (
-    <DashboardLayout activePage="dashboard" onNavigate={onNavigate}>
+    <DashboardLayout activePage="dashboard" onNavigate={onNavigate} onSignOut={onSignOut}>
       <DashboardContent onNavigate={onNavigate} />
     </DashboardLayout>
   );

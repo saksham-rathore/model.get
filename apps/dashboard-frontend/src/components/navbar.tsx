@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from "react";
 
 export interface NavbarProps {
+  isLoggedIn?: boolean;
   onSignIn?: () => void;
+  onSignOut?: () => void;
   onGetApiKey?: () => void;
   onDashboard?: () => void;
   className?: string;
 }
 
-export function Navbar({ onSignIn, onGetApiKey, onDashboard, className = "" }: NavbarProps): React.JSX.Element {
+export function Navbar({
+  isLoggedIn = false,
+  onSignIn,
+  onSignOut,
+  onGetApiKey,
+  onDashboard,
+  className = "",
+}: NavbarProps): React.JSX.Element {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -95,23 +104,94 @@ export function Navbar({ onSignIn, onGetApiKey, onDashboard, className = "" }: N
           >
             FAQ
           </a>
-          <a
-            href="#dashboard"
-            onClick={(e) => {
-              setMobileMenuOpen(false);
-              if (onDashboard) {
-                e.preventDefault();
-                onDashboard();
-              }
-            }}
-            className="rounded-lg px-3 py-3.5 text-[15px] font-medium text-brand hover:text-brand-strong transition-colors hover:bg-white/5 md:py-2"
-          >
-            Dashboard
-          </a>
+
+          {isLoggedIn ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                setMobileMenuOpen(false);
+                if (onDashboard) {
+                  e.preventDefault();
+                  onDashboard();
+                }
+              }}
+              className="text-left rounded-lg px-3 py-3.5 text-[15px] font-medium text-brand hover:text-brand-strong transition-colors hover:bg-white/5 md:py-2 cursor-pointer"
+            >
+              Dashboard
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              title="Sign in to access dashboard"
+              className="text-left rounded-lg px-3 py-3.5 text-[15px] font-medium text-zinc-500 opacity-40 cursor-not-allowed md:py-2"
+            >
+              Dashboard
+            </button>
+          )}
+
+          {/* Mobile-only menu items for Sign in / Sign out */}
+          <div className="mt-2 flex flex-col gap-1 border-t border-white/10 pt-2 md:hidden">
+            {isLoggedIn ? (
+              <>
+                <button
+                  type="button"
+                  disabled
+                  title="Already signed in"
+                  className="rounded-lg px-3 py-2.5 text-left text-[15px] font-medium text-zinc-500 opacity-40 cursor-not-allowed"
+                >
+                  Sign in
+                </button>
+                {onSignOut && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onSignOut();
+                    }}
+                    className="rounded-lg px-3 py-2.5 text-left text-[15px] font-medium text-zinc-400 hover:bg-white/5 hover:text-white cursor-pointer"
+                  >
+                    Sign out
+                  </button>
+                )}
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onSignIn?.();
+                }}
+                className="rounded-lg px-3 py-2.5 text-left text-[15px] font-medium text-zinc-400 hover:bg-white/5 hover:text-white cursor-pointer"
+              >
+                Sign in
+              </button>
+            )}
+          </div>
         </nav>
 
         <div className="flex items-center gap-2">
-          {onSignIn ? (
+          {isLoggedIn ? (
+            <>
+              <button
+                type="button"
+                disabled
+                title="Already signed in"
+                className="hidden rounded-lg px-3 py-2 text-[15px] font-medium text-zinc-500 opacity-40 cursor-not-allowed sm:inline-block"
+              >
+                Sign in
+              </button>
+              {onSignOut && (
+                <button
+                  type="button"
+                  onClick={onSignOut}
+                  className="rounded-lg px-3 py-2 text-[15px] font-medium text-zinc-400 transition-colors hover:text-white cursor-pointer"
+                >
+                  Sign out
+                </button>
+              )}
+            </>
+          ) : (
             <button
               type="button"
               onClick={onSignIn}
@@ -119,13 +199,6 @@ export function Navbar({ onSignIn, onGetApiKey, onDashboard, className = "" }: N
             >
               Sign in
             </button>
-          ) : (
-            <a
-              href="#signin"
-              className="hidden rounded-lg px-3 py-2 text-[15px] font-medium text-zinc-400 transition-colors hover:text-white sm:inline-block"
-            >
-              Sign in
-            </a>
           )}
 
           {onGetApiKey ? (

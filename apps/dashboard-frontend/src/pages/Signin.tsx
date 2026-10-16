@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { signInApi } from "../lib/auth";
 
 export interface SignInFormData {
   email: string;
@@ -48,15 +49,23 @@ export function SignIn({
       return;
     }
 
-    if (onSubmit) {
-      try {
-        setLocalLoading(true);
+    try {
+      setLocalLoading(true);
+
+      // Call the backend sign-in API to authenticate and set the auth cookie
+      await signInApi({ email, password });
+
+      if (onSubmit) {
         await onSubmit({ email, password, remember });
-      } catch (err) {
-        setLocalError(err instanceof Error ? err.message : "Failed to sign in. Please try again.");
-      } finally {
-        setLocalLoading(false);
       }
+    } catch (err) {
+      setLocalError(
+        err instanceof Error
+          ? err.message
+          : "Failed to sign in. Please try again."
+      );
+    } finally {
+      setLocalLoading(false);
     }
   };
 

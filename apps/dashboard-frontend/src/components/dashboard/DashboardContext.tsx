@@ -4,7 +4,14 @@ import React, {
   useState,
   useCallback,
   useMemo,
+  useEffect,
 } from "react";
+import {
+  createApiKeyApi,
+  getApiKeysApi,
+  updateApiKeyApi,
+  deleteApiKeyApi,
+} from "../../lib/auth";
 
 export interface ApiKeyItem {
   id: number;
@@ -189,6 +196,46 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     typeof setTimeout
   > | null>(null);
 
+  useEffect(() => {
+    let isMounted = true;
+    async function loadApiKeys() {
+      try {
+        const res = await getApiKeysApi();
+        if (
+          isMounted &&
+          res?.apiKeys &&
+          Array.isArray(res.apiKeys) &&
+          res.apiKeys.length > 0
+        ) {
+          const loadedKeys: ApiKeyItem[] = res.apiKeys.map((k) => ({
+            id: Number(k.id) || 1,
+            name: k.name,
+            tail: k.apiKey.slice(-4),
+            key: k.apiKey,
+            created: k.lastUsed
+              ? new Date(k.lastUsed).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "2-digit",
+                  year: "numeric",
+                })
+              : getTodayFormatted(),
+            limit: null,
+            used: (k.credisConsumed || 0) / 100,
+            reqs: 0,
+            on: !k.disabled,
+          }));
+          setKeys(loadedKeys);
+        }
+      } catch (err) {
+        // Not authenticated yet or server error
+      }
+    }
+    loadApiKeys();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const showToast = useCallback(
     (msg: string) => {
       if (toastTimer) clearTimeout(toastTimer);
@@ -231,17 +278,29 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const createKey = useCallback(
     async (name: string, limit: number | null = null): Promise<string> => {
-      const bytes = new Uint8Array(16);
-      if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-        crypto.getRandomValues(bytes);
-      } else {
-        for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+      let generatedKey: string;
+      let newId: number;
+
+      try {
+        // Call backend API to create real API key in database
+        const backendRes = await createApiKeyApi({ name });
+        generatedKey = backendRes.apiKey;
+        newId = Number(backendRes.id) || seq + 1;
+      } catch (err) {
+        console.warn("Backend API key creation failed, fallback to local:", err);
+        const bytes = new Uint8Array(16);
+        if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+          crypto.getRandomValues(bytes);
+        } else {
+          for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+        }
+        const hex = Array.from(bytes, (b) =>
+          b.toString(16).padStart(2, "0"),
+        ).join("");
+        generatedKey = `mg-sk-${hex}`;
+        newId = seq + 1;
       }
-      const hex = Array.from(bytes, (b) =>
-        b.toString(16).padStart(2, "0"),
-      ).join("");
-      const generatedKey = `mg-sk-${hex}`;
-      const newId = seq + 1;
+
       setSeq(newId);
 
       const newItem: ApiKeyItem = {
@@ -265,7 +324,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   );
 
   const revokeKey = useCallback(
-    (id: number) => {
+    async (id: number) => {
+      try {
+        await updateApiKeyApi({ id: id.toString(), disabled: true });
+      } catch (err) {
+        console.error("Failed to revoke key on backend:", err);
+      }
       setKeys((prev) =>
         prev.map((k) => (k.id === id ? { ...k, on: false } : k)),
       );
@@ -275,7 +339,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   );
 
   const deleteKey = useCallback(
-    (id: number) => {
+    async (id: number) => {
+      try {
+        await deleteApiKeyApi(id.toString());
+      } catch (err) {
+        console.error("Failed to delete key on backend:", err);
+      }
       setKeys((prev) => prev.filter((k) => k.id !== id));
       showToast("Key deleted");
     },

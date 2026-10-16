@@ -10,8 +10,7 @@ export function NewKeyBanner(): React.JSX.Element | null {
     <div className="mb-6 rounded-2xl border border-accent/40 bg-accent/10 p-5 animate-rise">
       <p className="font-semibold text-white">Copy your new key now</p>
       <p className="text-sm text-zinc-300">
-        “{newKey.name}” is shown only once. This is a demo key, not a real
-        credential.
+        “{newKey.name}” is shown only once. Keep this key secret and store it safely.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <code className="min-w-0 flex-1 truncate rounded-lg bg-black/60 px-3 py-2.5 font-mono text-[13px] text-white selection:bg-brand/40">

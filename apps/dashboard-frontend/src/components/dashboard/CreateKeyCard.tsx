@@ -12,20 +12,48 @@ export function CreateKeyCard({
   const [name, setName] = useState("");
   const [limit, setLimit] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdKey, setCreatedKey] = useState<{
+    name: string;
+    key: string;
+  } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!name.trim()) return;
+
+    setIsSubmitting(true);
+    setError(null);
 
     try {
-      setIsSubmitting(true);
       const parsedLimit = limit ? parseFloat(limit) : null;
-      await createKey(trimmed, parsedLimit);
+      // createKey calls backend POST /api-keys and updates dashboard context
+      const backendApiKey = await createKey(name.trim(), parsedLimit);
+      setCreatedKey({
+        name: name.trim(),
+        key: backendApiKey,
+      });
       setName("");
       setLimit("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create key");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!createdKey) return;
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(createdKey.key);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -87,12 +115,44 @@ export function CreateKeyCard({
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !name.trim()}
           className="inline-flex h-11 items-center justify-center rounded-xl bg-white px-4 text-sm font-semibold text-black transition-colors hover:bg-zinc-200 disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting ? "Creating..." : "Create key"}
         </button>
       </form>
+
+      {/* Render the created backend API key directly */}
+      {createdKey && (
+        <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 animate-rise">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                Backend API Key Generated
+              </span>
+              <p className="text-sm font-medium text-white">{createdKey.name}</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="inline-flex h-8 items-center justify-center rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200 active:scale-95 transition-all cursor-pointer"
+            >
+              {copied ? "Copied!" : "Copy key"}
+            </button>
+          </div>
+          <div className="mt-2.5 flex items-center gap-2">
+            <code className="min-w-0 flex-1 truncate rounded-lg bg-black/60 px-3 py-2 font-mono text-[13px] text-emerald-300 selection:bg-emerald-500/30">
+              {createdKey.key}
+            </code>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          {error}
+        </div>
+      )}
     </section>
   );
 }

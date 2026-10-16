@@ -12,16 +12,31 @@ import {
 } from "../components";
 
 export interface LandingProps {
+  isLoggedIn?: boolean;
   onSignIn?: () => void;
+  onSignOut?: () => void;
   onSignUp?: () => void;
   onDashboard?: () => void;
   className?: string;
 }
 
-export function Landing({ onSignIn, onSignUp, onDashboard, className = "" }: LandingProps): React.JSX.Element {
+export function Landing({
+  isLoggedIn = false,
+  onSignIn,
+  onSignOut,
+  onSignUp,
+  onDashboard,
+  className = "",
+}: LandingProps): React.JSX.Element {
   return (
     <div className={`w-full min-h-screen bg-black font-sans text-zinc-100 antialiased ${className}`}>
-      <Navbar onSignIn={onSignIn} onGetApiKey={onSignUp} onDashboard={onDashboard} />
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        onSignIn={onSignIn}
+        onSignOut={onSignOut}
+        onGetApiKey={onSignUp}
+        onDashboard={onDashboard}
+      />
       <main>
         <Hero onGetApiKey={onSignUp} />
         <ProvidersMarquee />

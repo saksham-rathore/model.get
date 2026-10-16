@@ -11,6 +11,7 @@ import {
 
 export interface CreditsPageProps {
   onNavigate?: (page: "dashboard" | "keys" | "credits" | "landing") => void;
+  onSignOut?: () => void;
   className?: string;
 }
 
@@ -64,9 +65,9 @@ export function CreditsContent(): React.JSX.Element {
   );
 }
 
-export function Credits({ onNavigate }: CreditsPageProps): React.JSX.Element {
+export function Credits({ onNavigate, onSignOut }: CreditsPageProps): React.JSX.Element {
   return (
-    <DashboardLayout activePage="credits" onNavigate={onNavigate}>
+    <DashboardLayout activePage="credits" onNavigate={onNavigate} onSignOut={onSignOut}>
       <CreditsContent />
     </DashboardLayout>
   );

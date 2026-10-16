@@ -12,6 +12,7 @@
     "start": "bun src/index.ts"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.2",
     "@elysiajs/jwt": "^1.2.0",
     "api-backend": "workspace:*",
     "db": "workspace:*",

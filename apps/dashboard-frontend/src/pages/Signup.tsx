@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { signUpApi, signInApi } from "../lib/auth";
 
 export interface SignUpFormData {
   name: string;
@@ -59,15 +60,24 @@ export function SignUp({
       return;
     }
 
-    if (onSubmit) {
-      try {
-        setLocalLoading(true);
+    try {
+      setLocalLoading(true);
+
+      await signUpApi({ email, password });
+
+      await signInApi({ email, password });
+
+      if (onSubmit) {
         await onSubmit({ name, email, password, terms });
-      } catch (err) {
-        setLocalError(err instanceof Error ? err.message : "Failed to create account. Please try again.");
-      } finally {
-        setLocalLoading(false);
       }
+    } catch (err) {
+      setLocalError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create account. Please try again."
+      );
+    } finally {
+      setLocalLoading(false);
     }
   };
 

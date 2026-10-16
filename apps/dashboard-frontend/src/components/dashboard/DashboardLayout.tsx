@@ -4,12 +4,14 @@ import { useDashboard } from "./DashboardContext";
 export interface DashboardLayoutProps {
   activePage: "dashboard" | "keys" | "credits";
   onNavigate?: (page: "dashboard" | "keys" | "credits" | "landing") => void;
+  onSignOut?: () => void;
   children: React.ReactNode;
 }
 
 export function DashboardLayout({
   activePage,
   onNavigate,
+  onSignOut,
   children,
 }: DashboardLayoutProps): React.JSX.Element {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,7 +41,9 @@ export function DashboardLayout({
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    if (onNavigate) {
+    if (onSignOut) {
+      onSignOut();
+    } else if (onNavigate) {
       onNavigate("landing");
     } else {
       window.location.hash = "";

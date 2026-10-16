@@ -29,11 +29,54 @@ function resolveRoute(): PageRoute {
 }
 
 export function App(): React.JSX.Element {
-  const [currentPage, setCurrentPage] = useState<PageRoute>(resolveRoute);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("isLoggedIn") === "true";
+    }
+    return false;
+  });
+
+  const [currentPage, setCurrentPage] = useState<PageRoute>(() => {
+    const initialRoute = resolveRoute();
+    const storedLoggedIn =
+      typeof window !== "undefined" &&
+      localStorage.getItem("isLoggedIn") === "true";
+    const isDashboardRoute =
+      initialRoute === "dashboard" ||
+      initialRoute === "keys" ||
+      initialRoute === "credits";
+    if (!storedLoggedIn && isDashboardRoute) {
+      return "signin";
+    }
+    return initialRoute;
+  });
+
+  const checkIsLoggedIn = () => {
+    return (
+      isLoggedIn ||
+      (typeof window !== "undefined" &&
+        localStorage.getItem("isLoggedIn") === "true")
+    );
+  };
 
   useEffect(() => {
     const handleNavigation = () => {
-      setCurrentPage(resolveRoute());
+      const nextRoute = resolveRoute();
+      const isDashboardRoute =
+        nextRoute === "dashboard" ||
+        nextRoute === "keys" ||
+        nextRoute === "credits";
+
+      const authed = checkIsLoggedIn();
+
+      if (!authed && isDashboardRoute) {
+        setCurrentPage("signin");
+        if (typeof window !== "undefined") {
+          window.location.hash = "signin";
+        }
+      } else {
+        setCurrentPage(nextRoute);
+      }
     };
 
     window.addEventListener("popstate", handleNavigation);
@@ -42,13 +85,42 @@ export function App(): React.JSX.Element {
       window.removeEventListener("popstate", handleNavigation);
       window.removeEventListener("hashchange", handleNavigation);
     };
-  }, []);
+  }, [isLoggedIn]);
 
   const navigateTo = (page: PageRoute) => {
+    const authed = checkIsLoggedIn();
+    if (
+      !authed &&
+      (page === "dashboard" || page === "keys" || page === "credits")
+    ) {
+      setCurrentPage("signin");
+      if (typeof window !== "undefined") {
+        window.location.hash = "signin";
+      }
+      return;
+    }
+
     setCurrentPage(page);
     if (typeof window !== "undefined") {
       window.location.hash = page === "landing" ? "" : page;
     }
+  };
+
+  const handleSignInSuccess = () => {
+    setIsLoggedIn(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("isLoggedIn", "true");
+      window.location.hash = "dashboard";
+    }
+    setCurrentPage("dashboard");
+  };
+
+  const handleSignOut = () => {
+    setIsLoggedIn(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("isLoggedIn");
+    }
+    navigateTo("landing");
   };
 
   return (
@@ -59,27 +131,29 @@ export function App(): React.JSX.Element {
           <SignUp
             onNavigateToSignin={() => navigateTo("signin")}
             onNavigateHome={() => navigateTo("landing")}
-            onSubmit={() => navigateTo("dashboard")}
-            onGoogleSignUp={() => navigateTo("dashboard")}
-            onGitHubSignUp={() => navigateTo("dashboard")}
+            onSubmit={handleSignInSuccess}
+            onGoogleSignUp={handleSignInSuccess}
+            onGitHubSignUp={handleSignInSuccess}
           />
         ) : currentPage === "signin" ? (
           <SignIn
             onNavigateToSignup={() => navigateTo("signup")}
             onNavigateHome={() => navigateTo("landing")}
-            onSubmit={() => navigateTo("dashboard")}
-            onGoogleSignIn={() => navigateTo("dashboard")}
-            onGitHubSignIn={() => navigateTo("dashboard")}
+            onSubmit={handleSignInSuccess}
+            onGoogleSignIn={handleSignInSuccess}
+            onGitHubSignIn={handleSignInSuccess}
           />
         ) : currentPage === "dashboard" ? (
-          <Dashboard onNavigate={navigateTo} />
+          <Dashboard onNavigate={navigateTo} onSignOut={handleSignOut} />
         ) : currentPage === "keys" ? (
-          <Aplikeys onNavigate={navigateTo} />
+          <Aplikeys onNavigate={navigateTo} onSignOut={handleSignOut} />
         ) : currentPage === "credits" ? (
-          <Credits onNavigate={navigateTo} />
+          <Credits onNavigate={navigateTo} onSignOut={handleSignOut} />
         ) : (
           <Landing
+            isLoggedIn={isLoggedIn}
             onSignIn={() => navigateTo("signin")}
+            onSignOut={handleSignOut}
             onSignUp={() => navigateTo("signup")}
             onDashboard={() => navigateTo("dashboard")}
           />

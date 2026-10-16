@@ -4,10 +4,17 @@ import { app as authApp } from "./modules/auth";
 import { app as apiKeysApp } from "./modules/apikeys";
 import { app as modelsApp } from "./modules/models";
 import { app as paymentsApp } from "./modules/payments";
+import { cors } from "@elysiajs/cors";
 
 const port = process.env.PORT || 4000;
 
 const app = new Elysia()
+  .use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  )
   .get("/", () => ({
     name: "primary-backend",
     status: "ok",
