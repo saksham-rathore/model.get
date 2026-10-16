@@ -1,166 +1,129 @@
-import React, { useState, useEffect } from "react";
+// App shell: tiny hash router + auth gate. No localStorage —
+// `useAuth().user` (backed by the `auth` cookie + GET /auth/profile)
+// is the only thing that decides logged-in vs logged-out.
+import { useEffect, useState } from "react";
 import "./index.css";
 import { FontLinks } from "./fonts";
-import { SignIn, SignUp, Landing, Dashboard, Aplikeys, Credits } from "./pages";
+import { AuthProvider, useAuth } from "./auth";
+import {
+  SignIn,
+  SignUp,
+  Landing,
+  Dashboard,
+  ApiKeys,
+  Credits,
+  Playground,
+} from "./pages";
 import { DashboardProvider } from "./components/dashboard";
 
-export type PageRoute =
-  "landing" | "signin" | "signup" | "dashboard" | "keys" | "credits";
+export type Page =
+  | "landing"
+  | "signin"
+  | "signup"
+  | "dashboard"
+  | "keys"
+  | "credits"
+  | "playground";
 
-function resolveRoute(): PageRoute {
-  if (typeof window !== "undefined") {
-    const hash = window.location.hash.toLowerCase().replace("#", "");
-    const path = window.location.pathname.toLowerCase();
+const PROTECTED: Page[] = ["dashboard", "keys", "credits", "playground"];
 
-    if (hash === "dashboard" || path === "/dashboard") return "dashboard";
-    if (
-      hash === "keys" ||
-      hash === "apikeys" ||
-      hash === "api-keys" ||
-      hash === "api" ||
-      path === "/keys" ||
-      path === "/apikeys"
-    )
-      return "keys";
-    if (hash === "credits" || path === "/credits") return "credits";
-    if (hash === "signup" || path === "/signup") return "signup";
-    if (hash === "signin" || path === "/signin") return "signin";
+function readHash(): Page {
+  const hash = window.location.hash.toLowerCase().replace("#", "");
+  if (hash === "dashboard" || hash === "keys" || hash === "credits") {
+    return hash;
   }
+  if (hash === "playground" || hash === "api" || hash === "apikeys") {
+    return hash === "apikeys" ? "keys" : "playground";
+  }
+  if (hash === "signup" || hash === "signin") return hash;
   return "landing";
 }
 
-export function App(): React.JSX.Element {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("isLoggedIn") === "true";
-    }
-    return false;
-  });
-
-  const [currentPage, setCurrentPage] = useState<PageRoute>(() => {
-    const initialRoute = resolveRoute();
-    const storedLoggedIn =
-      typeof window !== "undefined" &&
-      localStorage.getItem("isLoggedIn") === "true";
-    const isDashboardRoute =
-      initialRoute === "dashboard" ||
-      initialRoute === "keys" ||
-      initialRoute === "credits";
-    if (!storedLoggedIn && isDashboardRoute) {
-      return "signin";
-    }
-    return initialRoute;
-  });
-
-  const checkIsLoggedIn = () => {
-    return (
-      isLoggedIn ||
-      (typeof window !== "undefined" &&
-        localStorage.getItem("isLoggedIn") === "true")
-    );
-  };
+function Shell(): React.JSX.Element {
+  const { user, loading, signOut } = useAuth();
+  const [page, setPage] = useState<Page>(() => readHash());
 
   useEffect(() => {
-    const handleNavigation = () => {
-      const nextRoute = resolveRoute();
-      const isDashboardRoute =
-        nextRoute === "dashboard" ||
-        nextRoute === "keys" ||
-        nextRoute === "credits";
+    const onHash = () => setPage(readHash());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
-      const authed = checkIsLoggedIn();
-
-      if (!authed && isDashboardRoute) {
-        setCurrentPage("signin");
-        if (typeof window !== "undefined") {
-          window.location.hash = "signin";
-        }
-      } else {
-        setCurrentPage(nextRoute);
-      }
-    };
-
-    window.addEventListener("popstate", handleNavigation);
-    window.addEventListener("hashchange", handleNavigation);
-    return () => {
-      window.removeEventListener("popstate", handleNavigation);
-      window.removeEventListener("hashchange", handleNavigation);
-    };
-  }, [isLoggedIn]);
-
-  const navigateTo = (page: PageRoute) => {
-    const authed = checkIsLoggedIn();
-    if (
-      !authed &&
-      (page === "dashboard" || page === "keys" || page === "credits")
-    ) {
-      setCurrentPage("signin");
-      if (typeof window !== "undefined") {
-        window.location.hash = "signin";
-      }
-      return;
-    }
-
-    setCurrentPage(page);
-    if (typeof window !== "undefined") {
-      window.location.hash = page === "landing" ? "" : page;
-    }
+  const go = (next: Page) => {
+    setPage(next);
+    window.location.hash = next === "landing" ? "" : next;
   };
 
-  const handleSignInSuccess = () => {
-    setIsLoggedIn(true);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("isLoggedIn", "true");
-      window.location.hash = "dashboard";
-    }
-    setCurrentPage("dashboard");
+  const handleSignOut = async () => {
+    await signOut();
+    go("landing");
   };
 
-  const handleSignOut = () => {
-    setIsLoggedIn(false);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("isLoggedIn");
-    }
-    navigateTo("landing");
-  };
+  if (loading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-black text-zinc-400">
+        Loading…
+      </div>
+    );
+  }
 
-  return (
-    <DashboardProvider>
+  // Logged-out users may only see landing / signin / signup.
+  if (!user && PROTECTED.includes(page)) {
+    return (
       <div className="w-full min-h-screen flex flex-col bg-black">
         <FontLinks />
-        {currentPage === "signup" ? (
-          <SignUp
-            onNavigateToSignin={() => navigateTo("signin")}
-            onNavigateHome={() => navigateTo("landing")}
-            onSubmit={handleSignInSuccess}
-            onGoogleSignUp={handleSignInSuccess}
-            onGitHubSignUp={handleSignInSuccess}
-          />
-        ) : currentPage === "signin" ? (
-          <SignIn
-            onNavigateToSignup={() => navigateTo("signup")}
-            onNavigateHome={() => navigateTo("landing")}
-            onSubmit={handleSignInSuccess}
-            onGoogleSignIn={handleSignInSuccess}
-            onGitHubSignIn={handleSignInSuccess}
-          />
-        ) : currentPage === "dashboard" ? (
-          <Dashboard onNavigate={navigateTo} onSignOut={handleSignOut} />
-        ) : currentPage === "keys" ? (
-          <Aplikeys onNavigate={navigateTo} onSignOut={handleSignOut} />
-        ) : currentPage === "credits" ? (
-          <Credits onNavigate={navigateTo} onSignOut={handleSignOut} />
-        ) : (
-          <Landing
-            isLoggedIn={isLoggedIn}
-            onSignIn={() => navigateTo("signin")}
-            onSignOut={handleSignOut}
-            onSignUp={() => navigateTo("signup")}
-            onDashboard={() => navigateTo("dashboard")}
-          />
-        )}
+        <SignIn
+          onSuccess={() => go("dashboard")}
+          onNavigateToSignup={() => go("signup")}
+          onNavigateHome={() => go("landing")}
+        />
       </div>
-    </DashboardProvider>
+    );
+  }
+
+  return (
+    <div className="w-full min-h-screen flex flex-col bg-black">
+      <FontLinks />
+      {page === "signup" ? (
+        <SignUp
+          onSuccess={() => go("dashboard")}
+          onNavigateToSignin={() => go("signin")}
+          onNavigateHome={() => go("landing")}
+        />
+      ) : page === "signin" ? (
+        <SignIn
+          onSuccess={() => go("dashboard")}
+          onNavigateToSignup={() => go("signup")}
+          onNavigateHome={() => go("landing")}
+        />
+      ) : page === "dashboard" ? (
+        <Dashboard onNavigate={go} onSignOut={handleSignOut} />
+      ) : page === "keys" ? (
+        <ApiKeys onNavigate={go} onSignOut={handleSignOut} />
+      ) : page === "credits" ? (
+        <Credits onNavigate={go} onSignOut={handleSignOut} />
+      ) : page === "playground" ? (
+        <Playground onNavigate={go} onSignOut={handleSignOut} />
+      ) : (
+        <Landing
+          isLoggedIn={user !== null}
+          onSignIn={() => go("signin")}
+          onSignOut={handleSignOut}
+          onSignUp={() => go("signup")}
+          onDashboard={() => go("dashboard")}
+        />
+      )}
+    </div>
+  );
+}
+
+export function App(): React.JSX.Element {
+  return (
+    <AuthProvider>
+      <DashboardProvider>
+        <Shell />
+      </DashboardProvider>
+    </AuthProvider>
   );
 }
 

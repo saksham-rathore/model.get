@@ -47,11 +47,11 @@ export function Steps({ className = "" }: StepsProps): React.JSX.Element {
             >
               <span
                 aria-hidden="true"
-                className="absolute left-0 top-0 z-10 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black font-display text-lg font-bold text-white"
+                className="absolute left-0 top-0 z-10 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-black text-lg font-bold text-white"
               >
                 {item.step}
               </span>
-              <h3 className="font-display text-[1.375rem] font-bold leading-tight tracking-tight text-white">
+              <h3 className="text-[1.375rem] font-bold leading-tight tracking-tight text-white">
                 {item.title}
               </h3>
               <p className="max-w-[24em] text-base text-zinc-400">{item.description}</p>

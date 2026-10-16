@@ -17,7 +17,7 @@ export function PlanFree({
         Free
       </h3>
       <p className="flex flex-wrap items-baseline gap-2.5">
-        <span className="font-display text-[2.8rem] font-bold leading-none tracking-[-0.04em] text-white">
+        <span className="text-[2.8rem] font-bold leading-none tracking-[-0.04em] text-white">
           $0
         </span>
         <span className="text-[15px] text-zinc-400">to start</span>

@@ -44,7 +44,7 @@ export function Navbar({
         <a
           href="#top"
           aria-label="model.get home"
-          className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
         >
           <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
             <rect width="30" height="30" rx="9" fill="#fff" />
@@ -104,31 +104,6 @@ export function Navbar({
           >
             FAQ
           </a>
-
-          {isLoggedIn ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                setMobileMenuOpen(false);
-                if (onDashboard) {
-                  e.preventDefault();
-                  onDashboard();
-                }
-              }}
-              className="text-left rounded-lg px-3 py-3.5 text-[15px] font-medium text-brand hover:text-brand-strong transition-colors hover:bg-white/5 md:py-2 cursor-pointer"
-            >
-              Dashboard
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled
-              title="Sign in to access dashboard"
-              className="text-left rounded-lg px-3 py-3.5 text-[15px] font-medium text-zinc-500 opacity-40 cursor-not-allowed md:py-2"
-            >
-              Dashboard
-            </button>
-          )}
 
           {/* Mobile-only menu items for Sign in / Sign out */}
           <div className="mt-2 flex flex-col gap-1 border-t border-white/10 pt-2 md:hidden">
@@ -201,7 +176,15 @@ export function Navbar({
             </button>
           )}
 
-          {onGetApiKey ? (
+          {isLoggedIn ? (
+            <button
+              type="button"
+              onClick={onDashboard}
+              className="inline-flex h-10 items-center rounded-[10px] bg-white px-4 text-[15px] font-semibold text-black transition-colors hover:bg-zinc-200 max-[400px]:hidden cursor-pointer"
+            >
+              Dashboard
+            </button>
+          ) : onGetApiKey ? (
             <button
               type="button"
               onClick={onGetApiKey}

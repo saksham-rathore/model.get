@@ -31,7 +31,7 @@ export function ProvidersMarquee({ className = "" }: ProvidersMarqueeProps): Rea
             willChange: "transform",
           }}
         >
-          <ul className="flex flex-none gap-12 font-display text-[clamp(1.4rem,1.1rem+1vw,2rem)] font-semibold tracking-tight text-zinc-500">
+          <ul className="flex flex-none gap-12 text-[clamp(1.4rem,1.1rem+1vw,2rem)] font-semibold tracking-tight text-zinc-500">
             {PROVIDERS.map((provider) => (
               <li key={`p1-${provider}`} className="whitespace-nowrap">
                 {provider}
@@ -40,7 +40,7 @@ export function ProvidersMarquee({ className = "" }: ProvidersMarqueeProps): Rea
           </ul>
           <ul
             aria-hidden="true"
-            className="flex flex-none gap-12 font-display text-[clamp(1.4rem,1.1rem+1vw,2rem)] font-semibold tracking-tight text-zinc-500"
+            className="flex flex-none gap-12 text-[clamp(1.4rem,1.1rem+1vw,2rem)] font-semibold tracking-tight text-zinc-500"
           >
             {PROVIDERS.map((provider) => (
               <li key={`p2-${provider}`} className="whitespace-nowrap">

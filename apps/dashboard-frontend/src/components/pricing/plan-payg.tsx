@@ -1,11 +1,12 @@
 import React from "react";
 
 export interface PlanPaygProps {
+  isLoggedIn?: boolean;
   onSelect?: () => void;
   className?: string;
 }
 
-export function PlanPayg({ onSelect, className = "" }: PlanPaygProps): React.JSX.Element {
+export function PlanPayg({ isLoggedIn = false, onSelect, className = "" }: PlanPaygProps): React.JSX.Element {
   return (
     <article
       className={`flex flex-col gap-[18px] rounded-3xl border border-brand/60 bg-raised p-6 shadow-[0_0_0_1px_rgba(107,147,255,.25),0_30px_80px_-40px_rgba(107,147,255,.45)] sm:p-9 ${className}`}
@@ -14,7 +15,7 @@ export function PlanPayg({ onSelect, className = "" }: PlanPaygProps): React.JSX
         Pay as you go
       </h3>
       <p className="flex flex-wrap items-baseline gap-2.5">
-        <span className="font-display text-[2.8rem] font-bold leading-none tracking-[-0.04em] text-white">
+        <span className="text-[2.8rem] font-bold leading-none tracking-[-0.04em] text-white">
           +5%
         </span>
         <span className="text-[15px] text-zinc-400">on provider prices</span>
@@ -28,14 +29,14 @@ export function PlanPayg({ onSelect, className = "" }: PlanPaygProps): React.JSX
           onClick={onSelect}
           className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-white px-[22px] font-semibold text-black transition-colors hover:bg-zinc-200 cursor-pointer"
         >
-          Get your API key
+          {isLoggedIn ? "Dashboard" : "Get your API key"}
         </button>
       ) : (
         <a
-          href="#start"
+          href={isLoggedIn ? "#dashboard" : "#start"}
           className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-white px-[22px] font-semibold text-black transition-colors hover:bg-zinc-200"
         >
-          Get your API key
+          {isLoggedIn ? "Dashboard" : "Get your API key"}
         </a>
       )}
       <ul className="mt-1.5 grid gap-3">

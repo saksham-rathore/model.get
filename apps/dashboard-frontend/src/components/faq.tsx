@@ -56,7 +56,7 @@ export function Faq({ className = "" }: FaqProps): React.JSX.Element {
               key={idx}
               className="group border-t border-white/10"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-1 py-[22px] font-display text-[1.1875rem] font-semibold leading-snug tracking-tight text-white [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-1 py-[22px] text-[1.1875rem] font-semibold leading-snug tracking-tight text-white [&::-webkit-details-marker]:hidden">
                 {item.question}
                 <span
                   aria-hidden="true"

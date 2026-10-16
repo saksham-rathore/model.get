@@ -1,83 +1,60 @@
 import React, { useState } from "react";
-import { signUpApi, signInApi } from "../lib/auth";
-
-export interface SignUpFormData {
-  name: string;
-  email: string;
-  password: string;
-  terms: boolean;
-}
+import { useAuth } from "../auth";
 
 export interface SignUpProps {
-  onSubmit?: (data: SignUpFormData) => Promise<void> | void;
-  onGoogleSignUp?: () => Promise<void> | void;
-  onGitHubSignUp?: () => Promise<void> | void;
+  onSuccess?: () => void;
   onNavigateToSignin?: () => void;
   onNavigateHome?: () => void;
-  error?: string | null;
-  isLoading?: boolean;
   className?: string;
 }
 
 export function SignUp({
-  onSubmit,
-  onGoogleSignUp,
-  onGitHubSignUp,
+  onSuccess,
   onNavigateToSignin,
   onNavigateHome,
-  error: externalError,
-  isLoading: externalLoading = false,
   className = "",
 }: SignUpProps): React.JSX.Element {
-  const [name, setName] = useState("");
+  const { signUp } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [terms, setTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [localLoading, setLocalLoading] = useState(false);
-
-  const displayError = externalError ?? localError;
-  const isLoading = externalLoading || localLoading;
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLocalError(null);
+    setError(null);
 
-    if (!name || !email || !password) {
-      setLocalError("Please fill in all required fields.");
+    if (!email || !password) {
+      setError("Please fill in all required fields.");
       return;
     }
 
     if (password.length < 8) {
-      setLocalError("Password must be at least 8 characters long.");
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
     if (!terms) {
-      setLocalError("Please accept the Terms of Service and Privacy Policy.");
+      setError("Please accept the Terms of Service and Privacy Policy.");
       return;
     }
 
     try {
-      setLocalLoading(true);
-
-      await signUpApi({ email, password });
-
-      await signInApi({ email, password });
-
-      if (onSubmit) {
-        await onSubmit({ name, email, password, terms });
-      }
+      setIsLoading(true);
+      // POST /auth/sign-up (backend logs you in), then GET /auth/profile.
+      await signUp(email, password);
+      onSuccess?.();
     } catch (err) {
-      setLocalError(
+      setError(
         err instanceof Error
           ? err.message
           : "Failed to create account. Please try again.",
       );
     } finally {
-      setLocalLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -122,7 +99,7 @@ export function SignUp({
               href="/"
               onClick={handleHomeClick}
               aria-label="model.get home"
-              className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
             >
               <svg
                 width="30"
@@ -159,7 +136,7 @@ export function SignUp({
               style={{ "--i": 0 } as React.CSSProperties}
               className="grid gap-2.5 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
-              <h1 className="text-balance font-display text-[clamp(2rem,1.4rem+2vw,2.75rem)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
+              <h1 className="text-balance text-[clamp(2rem,1.4rem+2vw,2.75rem)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
                 Create your account
               </h1>
               <p className="text-base text-zinc-400">
@@ -169,59 +146,8 @@ export function SignUp({
 
             <div
               style={{ "--i": 1 } as React.CSSProperties}
-              className="motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
-            >
-              {/* Social sign-in buttons */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={onGitHubSignUp}
-                  aria-label="Continue with GitHub"
-                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                  </svg>
-                  GitHub
-                </button>
-                <button
-                  type="button"
-                  onClick={onGoogleSignUp}
-                  aria-label="Continue with Google"
-                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M21.35 11.1H12v2.9h5.35c-.25 1.4-1.7 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.9s2.65-5.9 5.85-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.65 3.8 14.55 2.9 12 2.9 6.95 2.9 2.9 6.95 2.9 12s4.05 9.1 9.1 9.1c5.25 0 8.75-3.7 8.75-8.9 0-.6-.05-1.05-.15-1.5z" />
-                  </svg>
-                  Google
-                </button>
-              </div>
-            </div>
-
-            <div
-              style={{ "--i": 2 } as React.CSSProperties}
               className="grid gap-7 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
-              {/* Divider with a label in the middle. */}
-              <div
-                role="separator"
-                className="flex items-center gap-4 text-sm text-zinc-500"
-              >
-                <span className="h-px flex-1 bg-white/10" />
-                <span>or use your email</span>
-                <span className="h-px flex-1 bg-white/10" />
-              </div>
-
               {/* Sign-up form */}
               <form
                 id="signup-form"
@@ -229,34 +155,14 @@ export function SignUp({
                 className="grid gap-5"
               >
                 {/* Form-level error banner */}
-                {displayError && (
+                {error && (
                   <div
                     role="alert"
                     className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
                   >
-                    {displayError}
+                    {error}
                   </div>
                 )}
-
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="su-name"
-                    className="text-sm font-medium text-zinc-200"
-                  >
-                    Full name
-                  </label>
-                  <input
-                    id="su-name"
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    required
-                    placeholder="Ada Lovelace"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="h-12 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 text-base text-white placeholder:text-zinc-500 transition-colors hover:border-white/30 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/20 aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-400/20"
-                  />
-                </div>
 
                 <div className="grid gap-2">
                   <label
@@ -465,7 +371,7 @@ export function SignUp({
               style={{ "--i": 1 } as React.CSSProperties}
               className="grid max-w-[30rem] gap-4 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
-              <h2 className="text-balance font-display text-[clamp(2rem,1.2rem+1.8vw,3rem)] font-bold leading-[1.04] tracking-[-0.035em] text-white">
+              <h2 className="text-balance text-[clamp(2rem,1.2rem+1.8vw,3rem)] font-bold leading-[1.04] tracking-[-0.035em] text-white">
                 Your first API call is a minute away.
               </h2>
               <p className="text-[1.0625rem] text-zinc-400">

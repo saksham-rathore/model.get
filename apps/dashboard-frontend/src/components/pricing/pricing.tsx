@@ -4,6 +4,7 @@ import { PlanPayg } from "./plan-payg";
 import { PlanEnterprise } from "./plan-enterprise";
 
 export interface PricingProps {
+  isLoggedIn?: boolean;
   onSelectFree?: () => void;
   onSelectPayg?: () => void;
   onSelectEnterprise?: () => void;
@@ -11,6 +12,7 @@ export interface PricingProps {
 }
 
 export function Pricing({
+  isLoggedIn = false,
   onSelectFree,
   onSelectPayg,
   onSelectEnterprise,
@@ -30,7 +32,7 @@ export function Pricing({
 
         <div className="grid max-w-[520px] gap-4 md:max-w-none md:grid-cols-3">
           <PlanFree onSelect={onSelectFree} />
-          <PlanPayg onSelect={onSelectPayg} />
+          <PlanPayg isLoggedIn={isLoggedIn} onSelect={onSelectPayg} />
           <PlanEnterprise onSelect={onSelectEnterprise} />
         </div>
       </div>

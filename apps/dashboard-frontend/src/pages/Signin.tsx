@@ -1,71 +1,45 @@
 import React, { useState } from "react";
-import { signInApi } from "../lib/auth";
-
-export interface SignInFormData {
-  email: string;
-  password: string;
-  remember: boolean;
-}
+import { useAuth } from "../auth";
 
 export interface SignInProps {
-  onSubmit?: (data: SignInFormData) => Promise<void> | void;
-  onGoogleSignIn?: () => Promise<void> | void;
-  onGitHubSignIn?: () => Promise<void> | void;
+  onSuccess?: () => void;
   onNavigateToSignup?: () => void;
   onNavigateHome?: () => void;
-  onForgotPassword?: () => void;
-  error?: string | null;
-  isLoading?: boolean;
   className?: string;
 }
 
 export function SignIn({
-  onSubmit,
-  onGoogleSignIn,
-  onGitHubSignIn,
+  onSuccess,
   onNavigateToSignup,
   onNavigateHome,
-  onForgotPassword,
-  error: externalError,
-  isLoading: externalLoading = false,
   className = "",
 }: SignInProps): React.JSX.Element {
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [localLoading, setLocalLoading] = useState(false);
-
-  const displayError = externalError ?? localError;
-  const isLoading = externalLoading || localLoading;
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLocalError(null);
+    setError(null);
 
     if (!email || !password) {
-      setLocalError("Please enter both email and password.");
+      setError("Please enter both email and password.");
       return;
     }
 
     try {
-      setLocalLoading(true);
-
-      // Call the backend sign-in API to authenticate and set the auth cookie
-      await signInApi({ email, password });
-
-      if (onSubmit) {
-        await onSubmit({ email, password, remember });
-      }
+      setIsLoading(true);
+      await signIn(email, password); // POST /auth/sign-in, then GET /auth/profile
+      onSuccess?.();
     } catch (err) {
-      setLocalError(
-        err instanceof Error
-          ? err.message
-          : "Failed to sign in. Please try again.",
+      setError(
+        err instanceof Error ? err.message : "Failed to sign in. Please try again.",
       );
     } finally {
-      setLocalLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -83,13 +57,6 @@ export function SignIn({
     }
   };
 
-  const handleForgotPasswordClick = (e: React.MouseEvent) => {
-    if (onForgotPassword) {
-      e.preventDefault();
-      onForgotPassword();
-    }
-  };
-
   return (
     <div
       className={`w-full min-h-screen bg-black font-sans text-[17px] leading-relaxed text-zinc-100 antialiased ${className}`}
@@ -103,7 +70,7 @@ export function SignIn({
               href="/"
               onClick={handleHomeClick}
               aria-label="model.get home"
-              className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white transition-opacity hover:opacity-90"
             >
               <svg
                 width="30"
@@ -140,7 +107,7 @@ export function SignIn({
               style={{ "--i": 0 } as React.CSSProperties}
               className="grid gap-2.5 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
-              <h1 className="text-balance font-display text-[clamp(2rem,1.4rem+2vw,2.75rem)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
+              <h1 className="text-balance text-[clamp(2rem,1.4rem+2vw,2.75rem)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
                 Welcome back
               </h1>
               <p className="text-base text-zinc-400">
@@ -150,59 +117,8 @@ export function SignIn({
 
             <div
               style={{ "--i": 1 } as React.CSSProperties}
-              className="motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
-            >
-              {/* Social sign-in buttons */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={onGitHubSignIn}
-                  aria-label="Continue with GitHub"
-                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                  </svg>
-                  GitHub
-                </button>
-                <button
-                  type="button"
-                  onClick={onGoogleSignIn}
-                  aria-label="Continue with Google"
-                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.03] px-4 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/[0.07] active:translate-y-px cursor-pointer"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M21.35 11.1H12v2.9h5.35c-.25 1.4-1.7 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.9s2.65-5.9 5.85-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.65 3.8 14.55 2.9 12 2.9 6.95 2.9 2.9 6.95 2.9 12s4.05 9.1 9.1 9.1c5.25 0 8.75-3.7 8.75-8.9 0-.6-.05-1.05-.15-1.5z" />
-                  </svg>
-                  Google
-                </button>
-              </div>
-            </div>
-
-            <div
-              style={{ "--i": 2 } as React.CSSProperties}
               className="grid gap-7 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
-              {/* Divider with a label in the middle. */}
-              <div
-                role="separator"
-                className="flex items-center gap-4 text-sm text-zinc-500"
-              >
-                <span className="h-px flex-1 bg-white/10" />
-                <span>or use your email</span>
-                <span className="h-px flex-1 bg-white/10" />
-              </div>
-
               {/* Sign-in form */}
               <form
                 id="signin-form"
@@ -210,12 +126,12 @@ export function SignIn({
                 className="grid gap-5"
               >
                 {/* Form-level error banner */}
-                {displayError && (
+                {error && (
                   <div
                     role="alert"
                     className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
                   >
-                    {displayError}
+                    {error}
                   </div>
                 )}
 
@@ -241,21 +157,12 @@ export function SignIn({
                 </div>
 
                 <div className="grid gap-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <label
-                      htmlFor="si-password"
-                      className="text-sm font-medium text-zinc-200"
-                    >
-                      Password
-                    </label>
-                    <a
-                      href="#forgot"
-                      onClick={handleForgotPasswordClick}
-                      className="text-sm font-medium text-brand underline-offset-4 hover:underline"
-                    >
-                      Forgot password?
-                    </a>
-                  </div>
+                  <label
+                    htmlFor="si-password"
+                    className="text-sm font-medium text-zinc-200"
+                  >
+                    Password
+                  </label>
                   <div className="relative">
                     <input
                       id="si-password"
@@ -309,17 +216,6 @@ export function SignIn({
                     </button>
                   </div>
                 </div>
-
-                <label className="flex cursor-pointer items-center gap-3 text-[15px] text-zinc-300 select-none">
-                  <input
-                    type="checkbox"
-                    name="remember"
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                    className="h-[18px] w-[18px] cursor-pointer rounded accent-brand"
-                  />
-                  Keep me signed in on this device
-                </label>
 
                 <button
                   type="submit"
@@ -410,7 +306,7 @@ export function SignIn({
               style={{ "--i": 1 } as React.CSSProperties}
               className="grid max-w-[30rem] gap-4 motion-safe:animate-rise [animation-delay:calc(var(--i)*100ms)]"
             >
-              <h2 className="text-balance font-display text-[clamp(2rem,1.2rem+1.8vw,3rem)] font-bold leading-[1.04] tracking-[-0.035em] text-white">
+              <h2 className="text-balance text-[clamp(2rem,1.2rem+1.8vw,3rem)] font-bold leading-[1.04] tracking-[-0.035em] text-white">
                 Pick up where your routing left off.
               </h2>
               <p className="text-[1.0625rem] text-zinc-400">
@@ -549,19 +445,19 @@ export function SignIn({
               <dl className="grid grid-cols-3 border-t border-white/10 bg-white/[0.03]">
                 <div className="px-5 py-4">
                   <dt className="text-xs text-zinc-400">Requests today</dt>
-                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">
+                  <dd className="mt-0.5 text-lg font-semibold tabular-nums text-white">
                     12,480
                   </dd>
                 </div>
                 <div className="border-l border-white/10 px-5 py-4">
                   <dt className="text-xs text-zinc-400">Spend</dt>
-                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">
+                  <dd className="mt-0.5 text-lg font-semibold tabular-nums text-white">
                     $18.42
                   </dd>
                 </div>
                 <div className="border-l border-white/10 px-5 py-4">
                   <dt className="text-xs text-zinc-400">Success rate</dt>
-                  <dd className="mt-0.5 font-display text-lg font-semibold tabular-nums text-white">
+                  <dd className="mt-0.5 text-lg font-semibold tabular-nums text-white">
                     99.97%
                   </dd>
                 </div>

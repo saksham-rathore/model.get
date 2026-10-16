@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { Message } from "../types";
-import { BaseLlm, LlmResponse } from "./Base";
-import { TextBlock } from "@anthropic-ai/sdk/resources";
+import type { Message } from "../types";
+import { BaseLlm } from "./Base";
+import type { LlmResponse } from "./Base";
+import type { TextBlock } from "@anthropic-ai/sdk/resources";
 
 const client = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
@@ -9,7 +10,7 @@ const client = new Anthropic({
 
 
 export class Claude extends BaseLlm {
-    static async chat(model: string, messages: Message): Promise<LlmResponse> {
+    static override async chat(model: string, messages: Message): Promise<LlmResponse> {
         
         const response = await client.messages.create({
             max_tokens: 2048,
